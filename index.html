@@ -6,311 +6,369 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  :root {
-    --bg: #0b0b0b;
-    --panel: #141414;
-    --text: #e6e6e6;
-    --accent: #4fc3f7;
-    --border: #2a2a2a;
-  }
+:root{
+  --bar:#111;
+  --bezel:#1a1a1a;
+  --screen:#000;
+  --text:#fff;
+  --border:#333;
+}
 
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Inter","Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
+body{
+  margin:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  height:100vh;
+  font-family:"Inter","Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
+  color:var(--text);
+}
 
-  /* Menu bar */
-  .menu-bar {
-    display: flex;
-    gap: 20px;
-    padding: 8px 12px;
-    background: #111;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-    cursor: pointer;
-  }
+/* BEZEL */
+.bezel{
+  width:900px;
+  max-width:95vw;
+  height:85vh;
+  margin-top:2vh;
+  background:var(--bezel);
+  border:2px solid var(--border);
+  box-shadow:0 0 0 4px #111;
+  display:flex;
+  flex-direction:column;
+}
 
-  .menu-item {
-    position: relative;
-  }
+/* MENU BAR */
+.menu-bar{
+  background:var(--bar);
+  display:flex;
+  padding:6px 10px;
+  font-size:14px;
+  user-select:none;
+}
 
-  .dropdown {
-    position: absolute;
-    top: 24px;
-    left: 0;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    display: none;
-    flex-direction: column;
-    min-width: 160px;
-    z-index: 10;
-  }
+.menu-item{
+  margin-right:20px;
+  cursor:pointer;
+  position:relative;
+}
 
-  .dropdown div {
-    padding: 8px;
-  }
+/* DROPDOWN (CLICK BASED) */
+.dropdown{
+  position:absolute;
+  top:22px;
+  left:0;
+  background:var(--screen);
+  border:1px solid var(--border);
+  display:none;
+  flex-direction:column;
+  min-width:160px;
+  z-index:10;
+}
 
-  .dropdown div:hover {
-    background: #222;
-  }
+.dropdown div{
+  padding:6px 8px;
+}
 
-  .menu-item:hover .dropdown {
-    display: flex;
-  }
+.dropdown div:hover{
+  background:#222;
+}
 
-  /* Terminal */
-  #terminal {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    font-size: 14px;
-  }
+/* EGG */
+#egg{
+  margin-left:auto;
+  cursor:pointer;
+  opacity:.5;
+}
+#egg:hover{opacity:1;}
 
-  /* Input */
-  .input-bar {
-    border-top: 1px solid var(--border);
-    padding: 10px;
-  }
+/* TERMINAL */
+#terminal{
+  flex:1;
+  background:var(--screen);
+  padding:16px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  font-size:14px;
+}
 
-  input {
-    width: 100%;
-    background: #111;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px;
-    outline: none;
-  }
+/* INPUT */
+.input-bar{
+  background:var(--screen);
+  border-top:1px solid var(--border);
+  padding:10px;
+}
+input{
+  width:100%;
+  background:#111;
+  border:1px solid var(--border);
+  color:#fff;
+  padding:10px;
+  outline:none;
+}
 
-  /* Modal */
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
 
-  .modal-content {
-    background: var(--panel);
-    padding: 20px;
-    border: 1px solid var(--border);
-    width: 320px;
-  }
+.modal-content{
+  background:var(--screen);
+  border:1px solid var(--border);
+  padding:15px;
+  width:320px;
+}
 
-  .file-list {
-    margin-top: 10px;
-    border: 1px solid var(--border);
-  }
+.file-row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px;
+  cursor:pointer;
+}
+.file-row:hover{background:#222;}
 
-  .file-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 8px;
-    cursor: pointer;
-  }
-
-  .file-row:hover {
-    background: #222;
-  }
-
-  .btn {
-    margin-top: 10px;
-    padding: 8px;
-    background: var(--accent);
-    color: black;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-  }
-
-  .loading {
-    text-align: center;
-  }
-
-  /* Notice */
-  #notice {
-    display: none;
-  }
+.btn{
+  width:100%;
+  margin-top:8px;
+  padding:8px;
+  background:#fff;
+  color:#000;
+  border:none;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- Menu -->
+<div class="bezel">
+
+<!-- MENU -->
 <div class="menu-bar">
-  <div class="menu-item">File
-    <div class="dropdown">
+  <div class="menu-item" onclick="toggleMenu('fileMenu')">File
+    <div id="fileMenu" class="dropdown">
       <div onclick="openFile()">Load PromptWare…</div>
       <div onclick="resetSession()">Reset</div>
     </div>
   </div>
 
-  <div class="menu-item">View
-    <div class="dropdown">
+  <div class="menu-item" onclick="toggleMenu('viewMenu')">View
+    <div id="viewMenu" class="dropdown">
       <div onclick="setFlavor('vanilla')">Vanilla</div>
-      <div onclick="setFlavor('obsidian')">Obsidian</div>
       <div onclick="setFlavor('mint')">Mint</div>
+      <div onclick="setFlavor('cocoa')">Cocoa</div>
+      <div onclick="setFlavor('blueberry')">Blueberry</div>
+      <div onclick="setFlavor('melon')">Melon</div>
+      <div onclick="setFlavor('citrus')">Citrus</div>
     </div>
   </div>
 
-  <div class="menu-item">Help
-    <div class="dropdown">
+  <div class="menu-item" onclick="toggleMenu('helpMenu')">Help
+    <div id="helpMenu" class="dropdown">
       <div onclick="showNotice(true)">About</div>
     </div>
   </div>
+
+  <div id="egg">🥚</div>
 </div>
 
-<!-- Terminal -->
-<div id="terminal">Goose Eggs 🥚\n\nInitialize PromptWare to begin.</div>
+<!-- TERMINAL -->
+<div id="terminal">Welcome to Goose Eggs LLM Arcade</div>
 
-<!-- Input -->
+<!-- INPUT -->
 <div class="input-bar">
   <input id="input" placeholder="Type command…" onkeydown="handleInput(event)">
 </div>
 
-<!-- File Modal -->
+</div>
+
+<!-- FILE MODAL -->
 <div id="fileModal" class="modal">
   <div class="modal-content">
-    <strong>Select PromptWare</strong>
+    <strong>PromptWare</strong>
 
-    <div class="file-list">
-      <div class="file-row" onclick="selectFile('Long Lost Mines')">
-        <span>Long Lost Mines</span><span>12.4k</span>
-      </div>
-      <div class="file-row" onclick="selectFile('Lonely Lunar Module')">
-        <span>Lonely Lunar Module</span><span>18.9k</span>
-      </div>
-      <div class="file-row" onclick="selectFile('Last Lap Motors')">
-        <span>Last Lap Motors</span><span>6.2k</span>
-      </div>
+    <div class="file-row" onclick="selectFile('Long Lost Mines')">
+      <span>Long Lost Mines</span><span>12.4k</span>
+    </div>
+    <div class="file-row" onclick="selectFile('Lonely Lunar Module')">
+      <span>Lonely Lunar Module</span><span>18.9k</span>
+    </div>
+    <div class="file-row" onclick="selectFile('Last Lap Motors')">
+      <span>Last Lap Motors</span><span>6.2k</span>
     </div>
 
-    <button class="btn" onclick="loadFile()">Open</button>
+    <button class="btn" onclick="loadFile()">Load</button>
     <button class="btn" onclick="closeFile()">Cancel</button>
   </div>
 </div>
 
-<!-- Loading Modal -->
+<!-- LOADING -->
 <div id="loadingModal" class="modal">
-  <div class="modal-content loading">
-    <div id="loadingText">Initializing...</div>
-  </div>
+  <div class="modal-content" id="loadingText">Loading…</div>
 </div>
 
-<!-- Notice -->
+<!-- NOTICE -->
 <div id="notice" class="modal">
   <div class="modal-content">
-    <strong>Welcome to PromptWare</strong>
-    <p>
-      This console runs AI-powered tools and games.<br><br>
-      • Do not enter personal information<br>
-      • Outputs may vary<br><br>
-      Use it to play and experiment.
-    </p>
-    <label>
-      <input type="checkbox" id="dontShow"> Don't show again
-    </label>
+    <strong>PromptWare Notice</strong>
+    <p>Do not enter personal info. Outputs may vary.</p>
+    <label><input type="checkbox" id="dontShow"> Don't show again</label>
     <button class="btn" onclick="dismissNotice()">Continue</button>
   </div>
 </div>
 
 <script>
-let selected = null;
-
-function append(text){
-  const term = document.getElementById("terminal");
-  term.textContent += "\n" + text;
-  term.scrollTop = term.scrollHeight;
+/* MENU */
+let activeMenu=null;
+function toggleMenu(id){
+  if(activeMenu===id){closeMenus();return;}
+  closeMenus();
+  document.getElementById(id).style.display='flex';
+  activeMenu=id;
 }
+function closeMenus(){
+  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
+  activeMenu=null;
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.menu-item')) closeMenus();
+});
 
+/* TERMINAL */
+function append(t){
+  const el=document.getElementById("terminal");
+  el.textContent+="\n"+t;
+  el.scrollTop=el.scrollHeight;
+}
 function handleInput(e){
-  if(e.key === "Enter"){
-    append("> " + e.target.value);
+  if(e.key==="Enter"){
+    append("> "+e.target.value);
     append("...");
-    e.target.value = "";
+    e.target.value="";
   }
 }
 
-function openFile(){
-  document.getElementById("fileModal").style.display = "flex";
-}
-
-function closeFile(){
-  document.getElementById("fileModal").style.display = "none";
-}
-
-function selectFile(name){
-  selected = name;
-}
-
+/* FILE */
+let selected=null;
+function openFile(){document.getElementById("fileModal").style.display="flex";}
+function closeFile(){document.getElementById("fileModal").style.display="none";}
+function selectFile(n){selected=n;}
 function loadFile(){
   closeFile();
-  startLoading(() => {
-    append("\nLoaded: " + selected);
+  startLoading(()=>{
+    append("\nLoaded: "+selected);
   });
 }
 
+/* LOADING */
 function startLoading(cb){
-  const modal = document.getElementById("loadingModal");
-  const text = document.getElementById("loadingText");
-
-  modal.style.display = "flex";
-
-  const steps = [
-    "Loading PromptWare...",
-    "Injecting ruleset...",
-    "Starting session..."
-  ];
-
-  let i = 0;
-  let interval = setInterval(() => {
-    text.textContent = steps[i];
-    i++;
-    if(i >= steps.length){
-      clearInterval(interval);
-      setTimeout(()=>{
-        modal.style.display = "none";
-        cb();
-      }, 500);
+  const m=document.getElementById("loadingModal");
+  const t=document.getElementById("loadingText");
+  m.style.display="flex";
+  let steps=["Loading PromptWare…","Injecting ruleset…","Starting session…"];
+  let i=0;
+  let x=setInterval(()=>{
+    t.textContent=steps[i++];
+    if(i>=steps.length){
+      clearInterval(x);
+      setTimeout(()=>{m.style.display="none";cb();},400);
     }
-  }, 800);
+  },700);
 }
 
+/* RESET */
 function resetSession(){
-  document.getElementById("terminal").textContent = "Session reset.";
+  document.getElementById("terminal").textContent="Session reset.";
 }
 
-function setFlavor(type){
-  const root = document.documentElement;
-  if(type === "obsidian"){
-    root.style.setProperty('--bg','#000');
-  } else if(type === "mint"){
-    root.style.setProperty('--bg','#041a10');
-  } else {
-    root.style.setProperty('--bg','#0b0b0b');
-  }
+/* FLAVORS */
+function setFlavor(f){
+  const root=document.documentElement;
+
+  const map={
+    vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000"},
+    mint:{bar:"#052a1c",bezel:"#0b3f2c",screen:"#102f22"},
+    cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10"},
+    blueberry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f"},
+    melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018"},
+    citrus:{bar:"#2a1a05",bezel:"#3f2a0b",screen:"#2f2410"}
+  };
+
+  root.style.setProperty('--bar',map[f].bar);
+  root.style.setProperty('--bezel',map[f].bezel);
+  root.style.setProperty('--screen',map[f].screen);
 }
 
+/* NOTICE */
 function showNotice(force=false){
-  if(localStorage.getItem("pw_notice") && !force) return;
-  document.getElementById("notice").style.display = "flex";
+  if(localStorage.getItem("seen") && !force) return;
+  document.getElementById("notice").style.display="flex";
 }
-
 function dismissNotice(){
   if(document.getElementById("dontShow").checked){
-    localStorage.setItem("pw_notice","1");
+    localStorage.setItem("seen","1");
   }
-  document.getElementById("notice").style.display = "none";
+  document.getElementById("notice").style.display="none";
+}
+showNotice();
+
+/* EGG */
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+function tap(){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=800;
+  g.gain.value=0.02;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),30);
 }
 
-showNotice();
+function whack(){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=120;
+  g.gain.value=0.1;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),120);
+}
+
+let clicks=0;
+
+document.getElementById("egg").onclick=()=>{
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  clicks++;
+  if(clicks<99){
+    tap();
+  }else{
+    whack();
+    clicks=0;
+    unlockEgg();
+  }
+};
+
+function unlockEgg(){
+  const m=document.createElement("div");
+  m.className="modal";
+  m.style.display="flex";
+  m.innerHTML=`
+    <div class="modal-content">
+      <strong>Hidden PromptWare</strong>
+      <textarea style="width:100%;height:150px;">
+[SECRET GAME HERE]
+      </textarea>
+      <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button>
+      <button class="btn" onclick="this.closest('.modal').remove()">Close</button>
+    </div>`;
+  document.body.appendChild(m);
+}
 </script>
 
 </body>
