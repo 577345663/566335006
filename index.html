@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>¡566335006</title>
+<title>Promptware Terminal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -29,10 +29,14 @@ body{
 /* PATTERNS */
 body.pattern-horizontal{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
 body.pattern-vertical{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
-body.pattern-diag-r{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
-body.pattern-diag-l{background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
-body.pattern-check{background-image:linear-gradient(45deg,rgba(255,255,255,.04)25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.04)25%,transparent 25%);}
-body.pattern-diamond{background-image:radial-gradient(circle,rgba(255,255,255,.04)1px,transparent 1px);background-size:12px 12px;}
+body.pattern-diagonal{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
+body.pattern-dots{background-image:radial-gradient(circle,rgba(255,255,255,.05)1px,transparent 1px);background-size:12px 12px;}
+body.pattern-chevron{
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.04) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255,255,255,.04) 25%, transparent 25%);
+  background-size:16px 16px;
+}
 
 /* BEZEL */
 .bezel{
@@ -55,12 +59,21 @@ body.pattern-diamond{background-image:radial-gradient(circle,rgba(255,255,255,.0
   display:flex;
   padding:6px 10px;
   font-size:14px;
+  align-items:center;
 }
 
 .menu-item{
   margin-right:20px;
   cursor:pointer;
   position:relative;
+}
+
+/* RIGHT LABEL */
+.system-label{
+  margin-left:auto;
+  font-weight:bold;
+  margin-right:10px;
+  user-select:none;
 }
 
 /* DROPDOWN */
@@ -76,8 +89,15 @@ body.pattern-diamond{background-image:radial-gradient(circle,rgba(255,255,255,.0
   z-index:20;
 }
 
-/* SUBMENU */
-.dropdown .submenu{
+.dropdown div{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 8px;
+  position:relative;
+}
+.dropdown div:hover{background:#222;}
+
+.submenu{
   position:absolute;
   top:0;
   left:100%;
@@ -85,25 +105,18 @@ body.pattern-diamond{background-image:radial-gradient(circle,rgba(255,255,255,.0
   flex-direction:column;
 }
 
-.dropdown div{
+.dropdown div:hover > .submenu{
   display:flex;
-  justify-content:space-between;
-  padding:6px 8px;
-  position:relative;
 }
-
-.dropdown div:hover{background:#222;}
-.dropdown div:hover > .submenu{display:flex;}
 
 .check{opacity:0;}
 
-/* EGG */
+/* EGG (FIXED CLICKABLE) */
 #egg{
-  margin-left:auto;
   cursor:pointer;
-  opacity:.5;
+  user-select:none;
+  pointer-events:auto;
 }
-#egg:hover{opacity:1;}
 
 /* TERMINAL */
 #terminal{
@@ -167,7 +180,6 @@ textarea{
 
 <div class="menu-bar">
 
-<!-- FILE -->
 <div class="menu-item" onclick="toggleMenu('fileMenu')">File
   <div id="fileMenu" class="dropdown">
     <div onclick="openFile()">Load</div>
@@ -175,11 +187,9 @@ textarea{
   </div>
 </div>
 
-<!-- VIEW -->
 <div class="menu-item" onclick="toggleMenu('viewMenu')">View
   <div id="viewMenu" class="dropdown">
 
-    <!-- FLAVORS -->
     <div>Flavors ▸
       <div class="submenu">
         <div onclick="setFlavor('vanilla')" data-flavor="vanilla"><span>Vanilla</span><span class="check">✓</span></div>
@@ -191,20 +201,17 @@ textarea{
       </div>
     </div>
 
-    <!-- PATTERNS -->
     <div>Patterns ▸
       <div class="submenu">
         <div onclick="setPattern('none')" data-pattern="none"><span>None</span><span class="check">✓</span></div>
         <div onclick="setPattern('horizontal')" data-pattern="horizontal"><span>Horizontal</span><span class="check">✓</span></div>
         <div onclick="setPattern('vertical')" data-pattern="vertical"><span>Vertical</span><span class="check">✓</span></div>
-        <div onclick="setPattern('diag-r')" data-pattern="diag-r"><span>Diagonal R</span><span class="check">✓</span></div>
-        <div onclick="setPattern('diag-l')" data-pattern="diag-l"><span>Diagonal L</span><span class="check">✓</span></div>
-        <div onclick="setPattern('diamond')" data-pattern="diamond"><span>Diamonds</span><span class="check">✓</span></div>
-        <div onclick="setPattern('check')" data-pattern="check"><span>Checkerboard</span><span class="check">✓</span></div>
+        <div onclick="setPattern('diagonal')" data-pattern="diagonal"><span>Diagonal</span><span class="check">✓</span></div>
+        <div onclick="setPattern('dots')" data-pattern="dots"><span>Dots</span><span class="check">✓</span></div>
+        <div onclick="setPattern('chevron')" data-pattern="chevron"><span>Chevron</span><span class="check">✓</span></div>
       </div>
     </div>
 
-    <!-- SCREEN -->
     <div>Screen ▸
       <div class="submenu">
         <div onclick="setScreen('standard')" data-screen="standard"><span>Standard</span><span class="check">✓</span></div>
@@ -216,14 +223,21 @@ textarea{
   </div>
 </div>
 
+<div class="menu-item" onclick="toggleMenu('helpMenu')">Help
+  <div id="helpMenu" class="dropdown">
+    <div onclick="showNotice(true)">About</div>
+  </div>
+</div>
+
+<div class="system-label">566335006</div>
 <div id="egg">🥚</div>
 
 </div>
 
-<div id="terminal">Welcome to 566335006</div>
+<div id="terminal">566335006</div>
 
 <div class="input-bar">
-<textarea id="input" placeholder="Type command…" onkeydown="handleInput(event)"></textarea>
+<textarea id="input" disabled placeholder="Load a prompt to begin…" onkeydown="handleInput(event)"></textarea>
 </div>
 
 </div>
@@ -240,22 +254,18 @@ textarea{
 
 <script>
 /* MENU */
-let activeMenu=null;
-
 function toggleMenu(id){
   const el=document.getElementById(id);
   if(el.style.display==="flex"){
     el.style.display="none";
-  }else{
+  } else {
     closeMenus();
     el.style.display="flex";
   }
 }
-
 function closeMenus(){
   document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
 }
-
 document.addEventListener('click',e=>{
   if(!e.target.closest('.menu-bar')) closeMenus();
 });
@@ -268,6 +278,9 @@ function append(t){
 }
 
 function handleInput(e){
+  const input=document.getElementById("input");
+  if(input.disabled) return;
+
   if(e.key==="Enter" && !e.shiftKey){
     e.preventDefault();
     append("> "+e.target.value);
@@ -284,7 +297,6 @@ let currentScreen="standard";
 /* FLAVOR */
 function setFlavor(f){
   currentFlavor=f;
-  const root=document.documentElement;
 
   const map={
     vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000",bg:"#000"},
@@ -292,13 +304,13 @@ function setFlavor(f){
     cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10",bg:"#140a02"},
     berry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f",bg:"#020c15"},
     melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018",bg:"#15020a"},
-    citrus:{bar:"#2a1a05",bezel:"#3f2a0b",screen:"#2f2410",bg:"#140d02"}
+    citrus:{bar:"#3a2a00",bezel:"#5a3f00",screen:"#2a2000",bg:"#120d00"}
   };
 
-  root.style.setProperty('--bar',map[f].bar);
-  root.style.setProperty('--bezel',map[f].bezel);
-  root.style.setProperty('--screen',map[f].screen);
-  root.style.setProperty('--bg',map[f].bg);
+  document.documentElement.style.setProperty('--bar',map[f].bar);
+  document.documentElement.style.setProperty('--bezel',map[f].bezel);
+  document.documentElement.style.setProperty('--screen',map[f].screen);
+  document.documentElement.style.setProperty('--bg',map[f].bg);
 
   updateChecks();
 }
@@ -334,9 +346,25 @@ function updateChecks(){
   });
 }
 
+/* LOAD */
+function openFile(){
+  append("\nPrompt loaded.");
+  const input=document.getElementById("input");
+  input.disabled=false;
+  input.placeholder="Type to interact…";
+}
+
+/* RESET */
+function resetSession(){
+  document.getElementById("terminal").textContent="566335006";
+  const input=document.getElementById("input");
+  input.disabled=true;
+  input.placeholder="Load a prompt to begin…";
+}
+
 /* NOTICE */
-function showNotice(){
-  if(localStorage.getItem("seen")) return;
+function showNotice(force=false){
+  if(localStorage.getItem("seen") && !force) return;
   document.getElementById("notice").style.display="flex";
 }
 function dismissNotice(){
@@ -346,6 +374,45 @@ function dismissNotice(){
   document.getElementById("notice").style.display="none";
 }
 showNotice();
+
+/* EGG FIXED */
+let clicks=0;
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+function tap(){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=700;
+  g.gain.value=0.03;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),25);
+}
+
+function whack(){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=120;
+  g.gain.value=0.1;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),120);
+}
+
+document.getElementById("egg").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+
+  clicks++;
+
+  if(clicks<99){
+    tap();
+  }else{
+    whack();
+    clicks=0;
+    append("\nHidden unlocked.");
+  }
+});
 
 /* INIT */
 updateChecks();
