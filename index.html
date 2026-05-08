@@ -15,7 +15,6 @@
   --border:#333;
 }
 
-/* BACKGROUND */
 body{
   margin:0;
   background:var(--bg);
@@ -23,17 +22,17 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  font-family:"Inter","Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
+  font-family:"Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
   color:var(--text);
 }
 
-/* PATTERN LAYER */
-body.pattern-horizontal{background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 6px);}
-body.pattern-vertical{background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 6px);}
-body.pattern-diag-r{background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 8px);}
-body.pattern-diag-l{background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 8px);}
-body.pattern-check{background-image: linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%);}
-body.pattern-diamond{background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:12px 12px;}
+/* PATTERNS */
+body.pattern-horizontal{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
+body.pattern-vertical{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
+body.pattern-diag-r{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
+body.pattern-diag-l{background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
+body.pattern-check{background-image:linear-gradient(45deg,rgba(255,255,255,.04)25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.04)25%,transparent 25%);}
+body.pattern-diamond{background-image:radial-gradient(circle,rgba(255,255,255,.04)1px,transparent 1px);background-size:12px 12px;}
 
 /* BEZEL */
 .bezel{
@@ -47,7 +46,6 @@ body.pattern-diamond{background-image: radial-gradient(circle, rgba(255,255,255,
   flex-direction:column;
 }
 
-/* SCREEN MODES */
 .bezel.wide{width:1100px;}
 .bezel.ultra{width:95vw;}
 
@@ -65,6 +63,7 @@ body.pattern-diamond{background-image: radial-gradient(circle, rgba(255,255,255,
   position:relative;
 }
 
+/* DROPDOWN */
 .dropdown{
   position:absolute;
   top:22px;
@@ -74,15 +73,27 @@ body.pattern-diamond{background-image: radial-gradient(circle, rgba(255,255,255,
   display:none;
   flex-direction:column;
   min-width:180px;
-  z-index:10;
+  z-index:20;
+}
+
+/* SUBMENU */
+.dropdown .submenu{
+  position:absolute;
+  top:0;
+  left:100%;
+  display:none;
+  flex-direction:column;
 }
 
 .dropdown div{
   display:flex;
   justify-content:space-between;
   padding:6px 8px;
+  position:relative;
 }
+
 .dropdown div:hover{background:#222;}
+.dropdown div:hover > .submenu{display:flex;}
 
 .check{opacity:0;}
 
@@ -118,6 +129,7 @@ textarea{
   color:#fff;
   border:1px solid var(--border);
   padding:8px;
+  box-sizing:border-box;
 }
 
 /* MODAL */
@@ -136,14 +148,6 @@ textarea{
   padding:15px;
   width:320px;
 }
-
-.file-row{
-  display:flex;
-  justify-content:space-between;
-  padding:6px;
-  cursor:pointer;
-}
-.file-row:hover{background:#222;}
 
 .btn{
   width:100%;
@@ -176,43 +180,39 @@ textarea{
   <div id="viewMenu" class="dropdown">
 
     <!-- FLAVORS -->
-    <div onclick="toggleMenu('flavorMenu')">Flavors ▸</div>
-    <div id="flavorMenu" class="dropdown">
-      <div onclick="setFlavor('vanilla')" data-flavor="vanilla"><span>Vanilla</span><span class="check">✓</span></div>
-      <div onclick="setFlavor('mint')" data-flavor="mint"><span>Mint</span><span class="check">✓</span></div>
-      <div onclick="setFlavor('cocoa')" data-flavor="cocoa"><span>Cocoa</span><span class="check">✓</span></div>
-      <div onclick="setFlavor('berry')" data-flavor="berry"><span>Berry</span><span class="check">✓</span></div>
-      <div onclick="setFlavor('melon')" data-flavor="melon"><span>Melon</span><span class="check">✓</span></div>
-      <div onclick="setFlavor('citrus')" data-flavor="citrus"><span>Citrus</span><span class="check">✓</span></div>
+    <div>Flavors ▸
+      <div class="submenu">
+        <div onclick="setFlavor('vanilla')" data-flavor="vanilla"><span>Vanilla</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('mint')" data-flavor="mint"><span>Mint</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('cocoa')" data-flavor="cocoa"><span>Cocoa</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('berry')" data-flavor="berry"><span>Berry</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('melon')" data-flavor="melon"><span>Melon</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('citrus')" data-flavor="citrus"><span>Citrus</span><span class="check">✓</span></div>
+      </div>
     </div>
 
     <!-- PATTERNS -->
-    <div onclick="toggleMenu('patternMenu')">Patterns ▸</div>
-    <div id="patternMenu" class="dropdown">
-      <div onclick="setPattern('none')" data-pattern="none"><span>None</span><span class="check">✓</span></div>
-      <div onclick="setPattern('horizontal')" data-pattern="horizontal"><span>Horizontal</span><span class="check">✓</span></div>
-      <div onclick="setPattern('vertical')" data-pattern="vertical"><span>Vertical</span><span class="check">✓</span></div>
-      <div onclick="setPattern('diag-r')" data-pattern="diag-r"><span>Diagonal R</span><span class="check">✓</span></div>
-      <div onclick="setPattern('diag-l')" data-pattern="diag-l"><span>Diagonal L</span><span class="check">✓</span></div>
-      <div onclick="setPattern('diamond')" data-pattern="diamond"><span>Diamonds</span><span class="check">✓</span></div>
-      <div onclick="setPattern('check')" data-pattern="check"><span>Checkerboard</span><span class="check">✓</span></div>
+    <div>Patterns ▸
+      <div class="submenu">
+        <div onclick="setPattern('none')" data-pattern="none"><span>None</span><span class="check">✓</span></div>
+        <div onclick="setPattern('horizontal')" data-pattern="horizontal"><span>Horizontal</span><span class="check">✓</span></div>
+        <div onclick="setPattern('vertical')" data-pattern="vertical"><span>Vertical</span><span class="check">✓</span></div>
+        <div onclick="setPattern('diag-r')" data-pattern="diag-r"><span>Diagonal R</span><span class="check">✓</span></div>
+        <div onclick="setPattern('diag-l')" data-pattern="diag-l"><span>Diagonal L</span><span class="check">✓</span></div>
+        <div onclick="setPattern('diamond')" data-pattern="diamond"><span>Diamonds</span><span class="check">✓</span></div>
+        <div onclick="setPattern('check')" data-pattern="check"><span>Checkerboard</span><span class="check">✓</span></div>
+      </div>
     </div>
 
     <!-- SCREEN -->
-    <div onclick="toggleMenu('screenMenu')">Screen ▸</div>
-    <div id="screenMenu" class="dropdown">
-      <div onclick="setScreen('standard')" data-screen="standard"><span>Standard</span><span class="check">✓</span></div>
-      <div onclick="setScreen('wide')" data-screen="wide"><span>Wide</span><span class="check">✓</span></div>
-      <div onclick="setScreen('ultra')" data-screen="ultra"><span>Ultrawide</span><span class="check">✓</span></div>
+    <div>Screen ▸
+      <div class="submenu">
+        <div onclick="setScreen('standard')" data-screen="standard"><span>Standard</span><span class="check">✓</span></div>
+        <div onclick="setScreen('wide')" data-screen="wide"><span>Wide</span><span class="check">✓</span></div>
+        <div onclick="setScreen('ultra')" data-screen="ultra"><span>Ultrawide</span><span class="check">✓</span></div>
+      </div>
     </div>
 
-  </div>
-</div>
-
-<!-- HELP -->
-<div class="menu-item" onclick="toggleMenu('helpMenu')">Help
-  <div id="helpMenu" class="dropdown">
-    <div onclick="showNotice(true)">About</div>
   </div>
 </div>
 
@@ -228,23 +228,36 @@ textarea{
 
 </div>
 
+<!-- NOTICE -->
+<div id="notice" class="modal">
+  <div class="modal-content">
+    <strong>Notice</strong>
+    <p>Do not enter personal info. Outputs may vary.</p>
+    <label><input type="checkbox" id="dontShow"> Don't show again</label>
+    <button class="btn" onclick="dismissNotice()">Continue</button>
+  </div>
+</div>
+
 <script>
+/* MENU */
 let activeMenu=null;
 
 function toggleMenu(id){
-  if(activeMenu===id){closeMenus();return;}
-  closeMenus();
-  document.getElementById(id).style.display='flex';
-  activeMenu=id;
+  const el=document.getElementById(id);
+  if(el.style.display==="flex"){
+    el.style.display="none";
+  }else{
+    closeMenus();
+    el.style.display="flex";
+  }
 }
 
 function closeMenus(){
   document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
-  activeMenu=null;
 }
 
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.menu-item')) closeMenus();
+  if(!e.target.closest('.menu-bar')) closeMenus();
 });
 
 /* TERMINAL */
@@ -288,18 +301,14 @@ function setFlavor(f){
   root.style.setProperty('--bg',map[f].bg);
 
   updateChecks();
-  closeMenus();
 }
 
 /* PATTERN */
 function setPattern(p){
   currentPattern=p;
-  document.body.className='';
-  if(p!=="none"){
-    document.body.classList.add("pattern-"+p);
-  }
+  document.body.className="";
+  if(p!=="none") document.body.classList.add("pattern-"+p);
   updateChecks();
-  closeMenus();
 }
 
 /* SCREEN */
@@ -310,21 +319,33 @@ function setScreen(s){
   if(s==="wide") b.classList.add("wide");
   if(s==="ultra") b.classList.add("ultra");
   updateChecks();
-  closeMenus();
 }
 
 /* CHECKS */
 function updateChecks(){
   document.querySelectorAll('[data-flavor]').forEach(el=>{
-    el.querySelector('.check').style.opacity = (el.dataset.flavor===currentFlavor)?1:0;
+    el.querySelector('.check').style.opacity=(el.dataset.flavor===currentFlavor)?1:0;
   });
   document.querySelectorAll('[data-pattern]').forEach(el=>{
-    el.querySelector('.check').style.opacity = (el.dataset.pattern===currentPattern)?1:0;
+    el.querySelector('.check').style.opacity=(el.dataset.pattern===currentPattern)?1:0;
   });
   document.querySelectorAll('[data-screen]').forEach(el=>{
-    el.querySelector('.check').style.opacity = (el.dataset.screen===currentScreen)?1:0;
+    el.querySelector('.check').style.opacity=(el.dataset.screen===currentScreen)?1:0;
   });
 }
+
+/* NOTICE */
+function showNotice(){
+  if(localStorage.getItem("seen")) return;
+  document.getElementById("notice").style.display="flex";
+}
+function dismissNotice(){
+  if(document.getElementById("dontShow").checked){
+    localStorage.setItem("seen","1");
+  }
+  document.getElementById("notice").style.display="none";
+}
+showNotice();
 
 /* INIT */
 updateChecks();
