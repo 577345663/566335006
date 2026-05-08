@@ -1,10 +1,317 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Goose Eggs</title>
+<meta charset="UTF-8">
+<title>Goose Eggs — PromptWare</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --panel: #141414;
+    --text: #e6e6e6;
+    --accent: #4fc3f7;
+    --border: #2a2a2a;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter","Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* Menu bar */
+  .menu-bar {
+    display: flex;
+    gap: 20px;
+    padding: 8px 12px;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .menu-item {
+    position: relative;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 24px;
+    left: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: none;
+    flex-direction: column;
+    min-width: 160px;
+    z-index: 10;
+  }
+
+  .dropdown div {
+    padding: 8px;
+  }
+
+  .dropdown div:hover {
+    background: #222;
+  }
+
+  .menu-item:hover .dropdown {
+    display: flex;
+  }
+
+  /* Terminal */
+  #terminal {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 14px;
+  }
+
+  /* Input */
+  .input-bar {
+    border-top: 1px solid var(--border);
+    padding: 10px;
+  }
+
+  input {
+    width: 100%;
+    background: #111;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px;
+    outline: none;
+  }
+
+  /* Modal */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: var(--panel);
+    padding: 20px;
+    border: 1px solid var(--border);
+    width: 320px;
+  }
+
+  .file-list {
+    margin-top: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .file-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    cursor: pointer;
+  }
+
+  .file-row:hover {
+    background: #222;
+  }
+
+  .btn {
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--accent);
+    color: black;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .loading {
+    text-align: center;
+  }
+
+  /* Notice */
+  #notice {
+    display: none;
+  }
+</style>
 </head>
-<body style="background:black;color:white;font-family:sans-serif;">
-  <h1>Goose Eggs 🥚</h1>
-  <p>Initializing PromptWare...</p>
+
+<body>
+
+<!-- Menu -->
+<div class="menu-bar">
+  <div class="menu-item">File
+    <div class="dropdown">
+      <div onclick="openFile()">Load PromptWare…</div>
+      <div onclick="resetSession()">Reset</div>
+    </div>
+  </div>
+
+  <div class="menu-item">View
+    <div class="dropdown">
+      <div onclick="setFlavor('vanilla')">Vanilla</div>
+      <div onclick="setFlavor('obsidian')">Obsidian</div>
+      <div onclick="setFlavor('mint')">Mint</div>
+    </div>
+  </div>
+
+  <div class="menu-item">Help
+    <div class="dropdown">
+      <div onclick="showNotice(true)">About</div>
+    </div>
+  </div>
+</div>
+
+<!-- Terminal -->
+<div id="terminal">Goose Eggs 🥚\n\nInitialize PromptWare to begin.</div>
+
+<!-- Input -->
+<div class="input-bar">
+  <input id="input" placeholder="Type command…" onkeydown="handleInput(event)">
+</div>
+
+<!-- File Modal -->
+<div id="fileModal" class="modal">
+  <div class="modal-content">
+    <strong>Select PromptWare</strong>
+
+    <div class="file-list">
+      <div class="file-row" onclick="selectFile('Long Lost Mines')">
+        <span>Long Lost Mines</span><span>12.4k</span>
+      </div>
+      <div class="file-row" onclick="selectFile('Lonely Lunar Module')">
+        <span>Lonely Lunar Module</span><span>18.9k</span>
+      </div>
+      <div class="file-row" onclick="selectFile('Last Lap Motors')">
+        <span>Last Lap Motors</span><span>6.2k</span>
+      </div>
+    </div>
+
+    <button class="btn" onclick="loadFile()">Open</button>
+    <button class="btn" onclick="closeFile()">Cancel</button>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="modal">
+  <div class="modal-content loading">
+    <div id="loadingText">Initializing...</div>
+  </div>
+</div>
+
+<!-- Notice -->
+<div id="notice" class="modal">
+  <div class="modal-content">
+    <strong>Welcome to PromptWare</strong>
+    <p>
+      This console runs AI-powered tools and games.<br><br>
+      • Do not enter personal information<br>
+      • Outputs may vary<br><br>
+      Use it to play and experiment.
+    </p>
+    <label>
+      <input type="checkbox" id="dontShow"> Don't show again
+    </label>
+    <button class="btn" onclick="dismissNotice()">Continue</button>
+  </div>
+</div>
+
+<script>
+let selected = null;
+
+function append(text){
+  const term = document.getElementById("terminal");
+  term.textContent += "\n" + text;
+  term.scrollTop = term.scrollHeight;
+}
+
+function handleInput(e){
+  if(e.key === "Enter"){
+    append("> " + e.target.value);
+    append("...");
+    e.target.value = "";
+  }
+}
+
+function openFile(){
+  document.getElementById("fileModal").style.display = "flex";
+}
+
+function closeFile(){
+  document.getElementById("fileModal").style.display = "none";
+}
+
+function selectFile(name){
+  selected = name;
+}
+
+function loadFile(){
+  closeFile();
+  startLoading(() => {
+    append("\nLoaded: " + selected);
+  });
+}
+
+function startLoading(cb){
+  const modal = document.getElementById("loadingModal");
+  const text = document.getElementById("loadingText");
+
+  modal.style.display = "flex";
+
+  const steps = [
+    "Loading PromptWare...",
+    "Injecting ruleset...",
+    "Starting session..."
+  ];
+
+  let i = 0;
+  let interval = setInterval(() => {
+    text.textContent = steps[i];
+    i++;
+    if(i >= steps.length){
+      clearInterval(interval);
+      setTimeout(()=>{
+        modal.style.display = "none";
+        cb();
+      }, 500);
+    }
+  }, 800);
+}
+
+function resetSession(){
+  document.getElementById("terminal").textContent = "Session reset.";
+}
+
+function setFlavor(type){
+  const root = document.documentElement;
+  if(type === "obsidian"){
+    root.style.setProperty('--bg','#000');
+  } else if(type === "mint"){
+    root.style.setProperty('--bg','#041a10');
+  } else {
+    root.style.setProperty('--bg','#0b0b0b');
+  }
+}
+
+function showNotice(force=false){
+  if(localStorage.getItem("pw_notice") && !force) return;
+  document.getElementById("notice").style.display = "flex";
+}
+
+function dismissNotice(){
+  if(document.getElementById("dontShow").checked){
+    localStorage.setItem("pw_notice","1");
+  }
+  document.getElementById("notice").style.display = "none";
+}
+
+showNotice();
+</script>
+
 </body>
 </html>
