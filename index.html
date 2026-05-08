@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Goose Eggs — PromptWare</title>
+<title>¡566335006</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,20 +10,30 @@
   --bar:#111;
   --bezel:#1a1a1a;
   --screen:#000;
+  --bg:#000;
   --text:#fff;
   --border:#333;
 }
 
+/* BACKGROUND */
 body{
   margin:0;
-  background:#000;
+  background:var(--bg);
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  height:100vh;
   font-family:"Inter","Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
   color:var(--text);
 }
+
+/* PATTERN LAYER */
+body.pattern-horizontal{background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 6px);}
+body.pattern-vertical{background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 6px);}
+body.pattern-diag-r{background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 8px);}
+body.pattern-diag-l{background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 8px);}
+body.pattern-check{background-image: linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%);}
+body.pattern-diamond{background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:12px 12px;}
 
 /* BEZEL */
 .bezel{
@@ -33,18 +43,20 @@ body{
   margin-top:2vh;
   background:var(--bezel);
   border:2px solid var(--border);
-  box-shadow:0 0 0 4px #111;
   display:flex;
   flex-direction:column;
 }
 
-/* MENU BAR */
+/* SCREEN MODES */
+.bezel.wide{width:1100px;}
+.bezel.ultra{width:95vw;}
+
+/* MENU */
 .menu-bar{
   background:var(--bar);
   display:flex;
   padding:6px 10px;
   font-size:14px;
-  user-select:none;
 }
 
 .menu-item{
@@ -53,7 +65,6 @@ body{
   position:relative;
 }
 
-/* DROPDOWN (CLICK BASED) */
 .dropdown{
   position:absolute;
   top:22px;
@@ -62,17 +73,18 @@ body{
   border:1px solid var(--border);
   display:none;
   flex-direction:column;
-  min-width:160px;
+  min-width:180px;
   z-index:10;
 }
 
 .dropdown div{
+  display:flex;
+  justify-content:space-between;
   padding:6px 8px;
 }
+.dropdown div:hover{background:#222;}
 
-.dropdown div:hover{
-  background:#222;
-}
+.check{opacity:0;}
 
 /* EGG */
 #egg{
@@ -89,7 +101,6 @@ body{
   padding:16px;
   overflow-y:auto;
   white-space:pre-wrap;
-  font-size:14px;
 }
 
 /* INPUT */
@@ -98,13 +109,15 @@ body{
   border-top:1px solid var(--border);
   padding:10px;
 }
-input{
+
+textarea{
   width:100%;
+  height:70px;
+  resize:none;
   background:#111;
-  border:1px solid var(--border);
   color:#fff;
-  padding:10px;
-  outline:none;
+  border:1px solid var(--border);
+  padding:8px;
 }
 
 /* MODAL */
@@ -146,95 +159,90 @@ input{
 
 <body>
 
-<div class="bezel">
+<div class="bezel" id="bezel">
 
-<!-- MENU -->
 <div class="menu-bar">
-  <div class="menu-item" onclick="toggleMenu('fileMenu')">File
-    <div id="fileMenu" class="dropdown">
-      <div onclick="openFile()">Load PromptWare…</div>
-      <div onclick="resetSession()">Reset</div>
-    </div>
-  </div>
 
-  <div class="menu-item" onclick="toggleMenu('viewMenu')">View
-    <div id="viewMenu" class="dropdown">
-      <div onclick="setFlavor('vanilla')">Vanilla</div>
-      <div onclick="setFlavor('mint')">Mint</div>
-      <div onclick="setFlavor('cocoa')">Cocoa</div>
-      <div onclick="setFlavor('blueberry')">Blueberry</div>
-      <div onclick="setFlavor('melon')">Melon</div>
-      <div onclick="setFlavor('citrus')">Citrus</div>
-    </div>
+<!-- FILE -->
+<div class="menu-item" onclick="toggleMenu('fileMenu')">File
+  <div id="fileMenu" class="dropdown">
+    <div onclick="openFile()">Load</div>
+    <div onclick="resetSession()">Reset</div>
   </div>
-
-  <div class="menu-item" onclick="toggleMenu('helpMenu')">Help
-    <div id="helpMenu" class="dropdown">
-      <div onclick="showNotice(true)">About</div>
-    </div>
-  </div>
-
-  <div id="egg">🥚</div>
 </div>
 
-<!-- TERMINAL -->
-<div id="terminal">Welcome to Goose Eggs LLM Arcade</div>
+<!-- VIEW -->
+<div class="menu-item" onclick="toggleMenu('viewMenu')">View
+  <div id="viewMenu" class="dropdown">
 
-<!-- INPUT -->
+    <!-- FLAVORS -->
+    <div onclick="toggleMenu('flavorMenu')">Flavors ▸</div>
+    <div id="flavorMenu" class="dropdown">
+      <div onclick="setFlavor('vanilla')" data-flavor="vanilla"><span>Vanilla</span><span class="check">✓</span></div>
+      <div onclick="setFlavor('mint')" data-flavor="mint"><span>Mint</span><span class="check">✓</span></div>
+      <div onclick="setFlavor('cocoa')" data-flavor="cocoa"><span>Cocoa</span><span class="check">✓</span></div>
+      <div onclick="setFlavor('berry')" data-flavor="berry"><span>Berry</span><span class="check">✓</span></div>
+      <div onclick="setFlavor('melon')" data-flavor="melon"><span>Melon</span><span class="check">✓</span></div>
+      <div onclick="setFlavor('citrus')" data-flavor="citrus"><span>Citrus</span><span class="check">✓</span></div>
+    </div>
+
+    <!-- PATTERNS -->
+    <div onclick="toggleMenu('patternMenu')">Patterns ▸</div>
+    <div id="patternMenu" class="dropdown">
+      <div onclick="setPattern('none')" data-pattern="none"><span>None</span><span class="check">✓</span></div>
+      <div onclick="setPattern('horizontal')" data-pattern="horizontal"><span>Horizontal</span><span class="check">✓</span></div>
+      <div onclick="setPattern('vertical')" data-pattern="vertical"><span>Vertical</span><span class="check">✓</span></div>
+      <div onclick="setPattern('diag-r')" data-pattern="diag-r"><span>Diagonal R</span><span class="check">✓</span></div>
+      <div onclick="setPattern('diag-l')" data-pattern="diag-l"><span>Diagonal L</span><span class="check">✓</span></div>
+      <div onclick="setPattern('diamond')" data-pattern="diamond"><span>Diamonds</span><span class="check">✓</span></div>
+      <div onclick="setPattern('check')" data-pattern="check"><span>Checkerboard</span><span class="check">✓</span></div>
+    </div>
+
+    <!-- SCREEN -->
+    <div onclick="toggleMenu('screenMenu')">Screen ▸</div>
+    <div id="screenMenu" class="dropdown">
+      <div onclick="setScreen('standard')" data-screen="standard"><span>Standard</span><span class="check">✓</span></div>
+      <div onclick="setScreen('wide')" data-screen="wide"><span>Wide</span><span class="check">✓</span></div>
+      <div onclick="setScreen('ultra')" data-screen="ultra"><span>Ultrawide</span><span class="check">✓</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="menu-item" onclick="toggleMenu('helpMenu')">Help
+  <div id="helpMenu" class="dropdown">
+    <div onclick="showNotice(true)">About</div>
+  </div>
+</div>
+
+<div id="egg">🥚</div>
+
+</div>
+
+<div id="terminal">Welcome to 566335006</div>
+
 <div class="input-bar">
-  <input id="input" placeholder="Type command…" onkeydown="handleInput(event)">
+<textarea id="input" placeholder="Type command…" onkeydown="handleInput(event)"></textarea>
 </div>
 
-</div>
-
-<!-- FILE MODAL -->
-<div id="fileModal" class="modal">
-  <div class="modal-content">
-    <strong>PromptWare</strong>
-
-    <div class="file-row" onclick="selectFile('Long Lost Mines')">
-      <span>Long Lost Mines</span><span>12.4k</span>
-    </div>
-    <div class="file-row" onclick="selectFile('Lonely Lunar Module')">
-      <span>Lonely Lunar Module</span><span>18.9k</span>
-    </div>
-    <div class="file-row" onclick="selectFile('Last Lap Motors')">
-      <span>Last Lap Motors</span><span>6.2k</span>
-    </div>
-
-    <button class="btn" onclick="loadFile()">Load</button>
-    <button class="btn" onclick="closeFile()">Cancel</button>
-  </div>
-</div>
-
-<!-- LOADING -->
-<div id="loadingModal" class="modal">
-  <div class="modal-content" id="loadingText">Loading…</div>
-</div>
-
-<!-- NOTICE -->
-<div id="notice" class="modal">
-  <div class="modal-content">
-    <strong>PromptWare Notice</strong>
-    <p>Do not enter personal info. Outputs may vary.</p>
-    <label><input type="checkbox" id="dontShow"> Don't show again</label>
-    <button class="btn" onclick="dismissNotice()">Continue</button>
-  </div>
 </div>
 
 <script>
-/* MENU */
 let activeMenu=null;
+
 function toggleMenu(id){
   if(activeMenu===id){closeMenus();return;}
   closeMenus();
   document.getElementById(id).style.display='flex';
   activeMenu=id;
 }
+
 function closeMenus(){
   document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
   activeMenu=null;
 }
+
 document.addEventListener('click',e=>{
   if(!e.target.closest('.menu-item')) closeMenus();
 });
@@ -245,130 +253,81 @@ function append(t){
   el.textContent+="\n"+t;
   el.scrollTop=el.scrollHeight;
 }
+
 function handleInput(e){
-  if(e.key==="Enter"){
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
     append("> "+e.target.value);
     append("...");
     e.target.value="";
   }
 }
 
-/* FILE */
-let selected=null;
-function openFile(){document.getElementById("fileModal").style.display="flex";}
-function closeFile(){document.getElementById("fileModal").style.display="none";}
-function selectFile(n){selected=n;}
-function loadFile(){
-  closeFile();
-  startLoading(()=>{
-    append("\nLoaded: "+selected);
-  });
-}
+/* STATE */
+let currentFlavor="vanilla";
+let currentPattern="none";
+let currentScreen="standard";
 
-/* LOADING */
-function startLoading(cb){
-  const m=document.getElementById("loadingModal");
-  const t=document.getElementById("loadingText");
-  m.style.display="flex";
-  let steps=["Loading PromptWare…","Injecting ruleset…","Starting session…"];
-  let i=0;
-  let x=setInterval(()=>{
-    t.textContent=steps[i++];
-    if(i>=steps.length){
-      clearInterval(x);
-      setTimeout(()=>{m.style.display="none";cb();},400);
-    }
-  },700);
-}
-
-/* RESET */
-function resetSession(){
-  document.getElementById("terminal").textContent="Session reset.";
-}
-
-/* FLAVORS */
+/* FLAVOR */
 function setFlavor(f){
+  currentFlavor=f;
   const root=document.documentElement;
 
   const map={
-    vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000"},
-    mint:{bar:"#052a1c",bezel:"#0b3f2c",screen:"#102f22"},
-    cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10"},
-    blueberry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f"},
-    melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018"},
-    citrus:{bar:"#2a1a05",bezel:"#3f2a0b",screen:"#2f2410"}
+    vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000",bg:"#000"},
+    mint:{bar:"#052a1c",bezel:"#0b3f2c",screen:"#102f22",bg:"#02150d"},
+    cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10",bg:"#140a02"},
+    berry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f",bg:"#020c15"},
+    melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018",bg:"#15020a"},
+    citrus:{bar:"#2a1a05",bezel:"#3f2a0b",screen:"#2f2410",bg:"#140d02"}
   };
 
   root.style.setProperty('--bar',map[f].bar);
   root.style.setProperty('--bezel',map[f].bezel);
   root.style.setProperty('--screen',map[f].screen);
+  root.style.setProperty('--bg',map[f].bg);
+
+  updateChecks();
+  closeMenus();
 }
 
-/* NOTICE */
-function showNotice(force=false){
-  if(localStorage.getItem("seen") && !force) return;
-  document.getElementById("notice").style.display="flex";
-}
-function dismissNotice(){
-  if(document.getElementById("dontShow").checked){
-    localStorage.setItem("seen","1");
+/* PATTERN */
+function setPattern(p){
+  currentPattern=p;
+  document.body.className='';
+  if(p!=="none"){
+    document.body.classList.add("pattern-"+p);
   }
-  document.getElementById("notice").style.display="none";
-}
-showNotice();
-
-/* EGG */
-const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-
-function tap(){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.frequency.value=800;
-  g.gain.value=0.02;
-  o.connect(g).connect(audioCtx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),30);
+  updateChecks();
+  closeMenus();
 }
 
-function whack(){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.frequency.value=120;
-  g.gain.value=0.1;
-  o.connect(g).connect(audioCtx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),120);
+/* SCREEN */
+function setScreen(s){
+  currentScreen=s;
+  const b=document.getElementById("bezel");
+  b.classList.remove("wide","ultra");
+  if(s==="wide") b.classList.add("wide");
+  if(s==="ultra") b.classList.add("ultra");
+  updateChecks();
+  closeMenus();
 }
 
-let clicks=0;
-
-document.getElementById("egg").onclick=()=>{
-  if(audioCtx.state==="suspended") audioCtx.resume();
-  clicks++;
-  if(clicks<99){
-    tap();
-  }else{
-    whack();
-    clicks=0;
-    unlockEgg();
-  }
-};
-
-function unlockEgg(){
-  const m=document.createElement("div");
-  m.className="modal";
-  m.style.display="flex";
-  m.innerHTML=`
-    <div class="modal-content">
-      <strong>Hidden PromptWare</strong>
-      <textarea style="width:100%;height:150px;">
-[SECRET GAME HERE]
-      </textarea>
-      <button class="btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">Copy</button>
-      <button class="btn" onclick="this.closest('.modal').remove()">Close</button>
-    </div>`;
-  document.body.appendChild(m);
+/* CHECKS */
+function updateChecks(){
+  document.querySelectorAll('[data-flavor]').forEach(el=>{
+    el.querySelector('.check').style.opacity = (el.dataset.flavor===currentFlavor)?1:0;
+  });
+  document.querySelectorAll('[data-pattern]').forEach(el=>{
+    el.querySelector('.check').style.opacity = (el.dataset.pattern===currentPattern)?1:0;
+  });
+  document.querySelectorAll('[data-screen]').forEach(el=>{
+    el.querySelector('.check').style.opacity = (el.dataset.screen===currentScreen)?1:0;
+  });
 }
+
+/* INIT */
+updateChecks();
 </script>
 
 </body>
