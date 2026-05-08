@@ -15,7 +15,6 @@
   --border:#333;
 }
 
-/* BACKGROUND */
 body{
   margin:0;
   background:var(--bg);
@@ -61,13 +60,13 @@ body.pattern-chevron{
   font-size:14px;
   align-items:center;
 }
+
 .menu-item{
   margin-right:20px;
   cursor:pointer;
   position:relative;
 }
 
-/* LABEL */
 .system-label{
   margin-left:auto;
   font-weight:bold;
@@ -75,7 +74,6 @@ body.pattern-chevron{
   user-select:none;
 }
 
-/* DROPDOWN */
 .dropdown{
   position:absolute;
   top:22px;
@@ -85,33 +83,32 @@ body.pattern-chevron{
   display:none;
   flex-direction:column;
   min-width:180px;
-  z-index:20;
+  z-index:50;
 }
-.dropdown div{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 8px;
-  position:relative;
-}
-.dropdown div:hover{background:#222;}
 
-/* SUBMENU */
+.dropdown > div{
+  padding:6px 8px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.dropdown > div:hover{background:#222;}
+
 .submenu{
   position:absolute;
   top:0;
   left:100%;
   display:none;
   flex-direction:column;
+  background:var(--screen);
+  border:1px solid var(--border);
 }
-.dropdown div:hover > .submenu{display:flex;}
+
+.dropdown > div:hover > .submenu{
+  display:flex;
+}
 
 .check{opacity:0;}
-
-/* EGG */
-#egg{
-  cursor:pointer;
-  user-select:none;
-}
 
 /* TERMINAL */
 #terminal{
@@ -119,16 +116,14 @@ body.pattern-chevron{
   background:var(--screen);
   padding:16px;
   overflow-y:auto;
-  white-space:pre-wrap;
 }
 
 /* INPUT */
 .input-bar{
-  background:var(--screen);
-  border-top:1px solid var(--border);
-  padding:10px;
   display:flex;
   gap:8px;
+  padding:10px;
+  border-top:1px solid var(--border);
 }
 textarea{
   flex:1;
@@ -138,14 +133,9 @@ textarea{
   color:#fff;
   border:1px solid var(--border);
   padding:8px;
-  box-sizing:border-box;
 }
 button.send{
   width:80px;
-  background:#fff;
-  color:#000;
-  border:none;
-  cursor:pointer;
 }
 
 /* MODAL */
@@ -157,11 +147,12 @@ button.send{
   align-items:center;
   justify-content:center;
 }
+
 .modal-content{
   background:var(--screen);
   border:1px solid var(--border);
   padding:15px;
-  width:320px;
+  width:300px;
 }
 </style>
 </head>
@@ -174,7 +165,7 @@ button.send{
 
 <div class="menu-item" onclick="toggleMenu('fileMenu')">File
   <div id="fileMenu" class="dropdown">
-    <div onclick="loadPrompt('default')">Load</div>
+    <div onclick="openLoadModal()">Load</div>
     <div onclick="resetSession()">Reset</div>
   </div>
 </div>
@@ -182,44 +173,40 @@ button.send{
 <div class="menu-item" onclick="toggleMenu('viewMenu')">View
   <div id="viewMenu" class="dropdown">
 
-    <div>Flavors ▸
+    <div>Flavors ▶
       <div class="submenu">
-        <div onclick="setFlavor('vanilla')" data-flavor="vanilla"><span>Vanilla</span><span class="check">✓</span></div>
-        <div onclick="setFlavor('mint')" data-flavor="mint"><span>Mint</span><span class="check">✓</span></div>
-        <div onclick="setFlavor('cocoa')" data-flavor="cocoa"><span>Cocoa</span><span class="check">✓</span></div>
-        <div onclick="setFlavor('berry')" data-flavor="berry"><span>Berry</span><span class="check">✓</span></div>
-        <div onclick="setFlavor('melon')" data-flavor="melon"><span>Melon</span><span class="check">✓</span></div>
-        <div onclick="setFlavor('citrus')" data-flavor="citrus"><span>Citrus</span><span class="check">✓</span></div>
+        <div onclick="setFlavor('vanilla')">Vanilla</div>
+        <div onclick="setFlavor('mint')">Mint</div>
+        <div onclick="setFlavor('cocoa')">Cocoa</div>
+        <div onclick="setFlavor('berry')">Berry</div>
+        <div onclick="setFlavor('melon')">Melon</div>
+        <div onclick="setFlavor('citrus')">Citrus</div>
       </div>
     </div>
 
-    <div>Patterns ▸
+    <div>Patterns ▶
       <div class="submenu">
-        <div onclick="setPattern('none')" data-pattern="none"><span>None</span><span class="check">✓</span></div>
-        <div onclick="setPattern('horizontal')" data-pattern="horizontal"><span>Horizontal</span><span class="check">✓</span></div>
-        <div onclick="setPattern('vertical')" data-pattern="vertical"><span>Vertical</span><span class="check">✓</span></div>
-        <div onclick="setPattern('diagonal')" data-pattern="diagonal"><span>Diagonal</span><span class="check">✓</span></div>
-        <div onclick="setPattern('dots')" data-pattern="dots"><span>Dots</span><span class="check">✓</span></div>
-        <div onclick="setPattern('chevron')" data-pattern="chevron"><span>Chevron</span><span class="check">✓</span></div>
+        <div onclick="setPattern('none')">None</div>
+        <div onclick="setPattern('horizontal')">Horizontal</div>
+        <div onclick="setPattern('vertical')">Vertical</div>
+        <div onclick="setPattern('diagonal')">Diagonal</div>
+        <div onclick="setPattern('dots')">Dots</div>
+        <div onclick="setPattern('chevron')">Chevron</div>
       </div>
     </div>
 
-    <div>Screen ▸
+    <div>Screen ▶
       <div class="submenu">
-        <div onclick="setScreen('standard')" data-screen="standard"><span>Standard</span><span class="check">✓</span></div>
-        <div onclick="setScreen('wide')" data-screen="wide"><span>Wide</span><span class="check">✓</span></div>
-        <div onclick="setScreen('ultra')" data-screen="ultra"><span>Ultrawide</span><span class="check">✓</span></div>
+        <div onclick="setScreen('standard')">Standard</div>
+        <div onclick="setScreen('wide')">Wide</div>
+        <div onclick="setScreen('ultra')">Ultrawide</div>
       </div>
     </div>
 
   </div>
 </div>
 
-<div class="menu-item" onclick="toggleMenu('helpMenu')">Help
-  <div id="helpMenu" class="dropdown">
-    <div onclick="showNotice(true)">About</div>
-  </div>
-</div>
+<div class="menu-item" onclick="showNotice()">Help</div>
 
 <div class="system-label">566335006</div>
 <div id="egg">🥚</div>
@@ -235,31 +222,66 @@ button.send{
 
 </div>
 
+<!-- LOAD MODAL -->
+<div id="loadModal" class="modal">
+  <div class="modal-content">
+    <div>Select Prompt</div>
+    <button onclick="loadPrompt('default')">Default Prompt</button>
+    <button id="gooseBtn" style="display:none;" onclick="loadPrompt('goose')">Goose Sweeper</button>
+    <button onclick="closeModal('loadModal')">Close</button>
+  </div>
+</div>
+
+<!-- NOTICE MODAL -->
+<div id="noticeModal" class="modal">
+  <div class="modal-content">
+    <div>Do not enter personal info.</div>
+    <label><input type="checkbox" id="dontShow"> Don't show again</label>
+    <button onclick="dismissNotice()">Continue</button>
+  </div>
+</div>
+
 <script>
 /* MENU */
 function toggleMenu(id){
   const el=document.getElementById(id);
-  if(el.style.display==="flex"){el.style.display="none";}
-  else{closeMenus();el.style.display="flex";}
-}
-function closeMenus(){
-  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
+  el.style.display=el.style.display==="flex"?"none":"flex";
 }
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.menu-bar')) closeMenus();
+  if(!e.target.closest('.menu-bar')){
+    document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
+  }
 });
+
+/* MODALS */
+function openLoadModal(){
+  document.getElementById("loadModal").style.display="flex";
+}
+function closeModal(id){
+  document.getElementById(id).style.display="none";
+}
+
+/* NOTICE */
+function showNotice(){
+  if(localStorage.getItem("seen")) return;
+  document.getElementById("noticeModal").style.display="flex";
+}
+function dismissNotice(){
+  if(document.getElementById("dontShow").checked){
+    localStorage.setItem("seen","1");
+  }
+  closeModal("noticeModal");
+}
+showNotice();
 
 /* TERMINAL */
 function appendUser(text){
-  const el=document.getElementById("terminal");
-  el.innerHTML += `<div style="text-align:right;font-style:italic;">${text}</div>`;
+  document.getElementById("terminal").innerHTML += `<div style="text-align:right;">${text}</div>`;
 }
 function appendLLM(text){
-  const el=document.getElementById("terminal");
-  el.innerHTML += `<div style="text-align:left;">${text}</div>`;
+  document.getElementById("terminal").innerHTML += `<div>${text}</div>`;
 }
 
-/* INPUT */
 function send(){
   const input=document.getElementById("input");
   if(input.disabled) return;
@@ -268,48 +290,11 @@ function send(){
   input.value="";
 }
 
-/* STATE */
-let currentFlavor="vanilla";
-let currentPattern="none";
-let currentScreen="standard";
-
-/* FLAVOR */
-function setFlavor(f){
-  const map={
-    vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000",bg:"#000"},
-    mint:{bar:"#052a1c",bezel:"#0b3f2c",screen:"#102f22",bg:"#02150d"},
-    cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10",bg:"#140a02"},
-    berry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f",bg:"#020c15"},
-    melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018",bg:"#15020a"},
-    citrus:{bar:"#665200",bezel:"#998000",screen:"#332900",bg:"#1a1400"}
-  };
-
-  document.documentElement.style.setProperty('--bar',map[f].bar);
-  document.documentElement.style.setProperty('--bezel',map[f].bezel);
-  document.documentElement.style.setProperty('--screen',map[f].screen);
-  document.documentElement.style.setProperty('--bg',map[f].bg);
-}
-
-/* PATTERN */
-function setPattern(p){
-  document.body.className="";
-  if(p!=="none") document.body.classList.add("pattern-"+p);
-}
-
-/* SCREEN */
-function setScreen(s){
-  const b=document.getElementById("bezel");
-  b.classList.remove("wide","ultra");
-  if(s==="wide") b.classList.add("wide");
-  if(s==="ultra") b.classList.add("ultra");
-}
-
 /* LOAD */
 function loadPrompt(name){
-  appendLLM("Prompt loaded.");
-  const input=document.getElementById("input");
-  input.disabled=false;
-  input.placeholder="Type to interact…";
+  closeModal("loadModal");
+  appendLLM(name==="goose"?"Goose Sweeper started.":"Prompt loaded.");
+  document.getElementById("input").disabled=false;
 }
 
 /* RESET */
@@ -317,23 +302,65 @@ function resetSession(){
   document.getElementById("terminal").innerHTML="";
   const input=document.getElementById("input");
   input.disabled=true;
-  input.placeholder="Load a prompt to begin…";
-}
-
-/* NOTICE */
-function showNotice(force=false){
-  if(localStorage.getItem("seen") && !force) return;
-  alert("Do not enter personal info.");
 }
 
 /* EGG */
 let clicks=0;
+const ctx=new (window.AudioContext||window.webkitAudioContext)();
+
+function tap(){
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.frequency.value=700;
+  g.gain.value=0.03;
+  o.connect(g).connect(ctx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),25);
+}
+
+function whack(){
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.frequency.value=120;
+  g.gain.value=0.1;
+  o.connect(g).connect(ctx.destination);
+  o.start();
+  setTimeout(()=>o.stop(),120);
+}
+
 document.getElementById("egg").onclick=()=>{
+  if(ctx.state==="suspended") ctx.resume();
   clicks++;
+  tap();
   if(clicks===99){
-    appendLLM("Goose Sweeper unlocked.");
+    whack();
+    document.getElementById("gooseBtn").style.display="block";
+    openLoadModal();
   }
 };
+
+/* VIEW */
+function setFlavor(f){
+  const map={
+    citrus:{bar:"#ffcc33",bezel:"#cc9900",screen:"#332600",bg:"#1a1400"}
+  };
+  if(map[f]){
+    document.documentElement.style.setProperty('--bar',map[f].bar);
+    document.documentElement.style.setProperty('--bezel',map[f].bezel);
+    document.documentElement.style.setProperty('--screen',map[f].screen);
+    document.documentElement.style.setProperty('--bg',map[f].bg);
+  }
+}
+function setPattern(p){
+  document.body.className="";
+  if(p!=="none") document.body.classList.add("pattern-"+p);
+}
+function setScreen(s){
+  const b=document.getElementById("bezel");
+  b.classList.remove("wide","ultra");
+  if(s==="wide") b.classList.add("wide");
+  if(s==="ultra") b.classList.add("ultra");
+}
 </script>
 
 </body>
