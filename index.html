@@ -15,6 +15,7 @@
   --border:#333;
 }
 
+/* BACKGROUND */
 body{
   margin:0;
   background:var(--bg);
@@ -49,7 +50,6 @@ body.pattern-chevron{
   display:flex;
   flex-direction:column;
 }
-
 .bezel.wide{width:1100px;}
 .bezel.ultra{width:95vw;}
 
@@ -61,14 +61,13 @@ body.pattern-chevron{
   font-size:14px;
   align-items:center;
 }
-
 .menu-item{
   margin-right:20px;
   cursor:pointer;
   position:relative;
 }
 
-/* RIGHT LABEL */
+/* LABEL */
 .system-label{
   margin-left:auto;
   font-weight:bold;
@@ -88,7 +87,6 @@ body.pattern-chevron{
   min-width:180px;
   z-index:20;
 }
-
 .dropdown div{
   display:flex;
   justify-content:space-between;
@@ -97,6 +95,7 @@ body.pattern-chevron{
 }
 .dropdown div:hover{background:#222;}
 
+/* SUBMENU */
 .submenu{
   position:absolute;
   top:0;
@@ -104,18 +103,14 @@ body.pattern-chevron{
   display:none;
   flex-direction:column;
 }
-
-.dropdown div:hover > .submenu{
-  display:flex;
-}
+.dropdown div:hover > .submenu{display:flex;}
 
 .check{opacity:0;}
 
-/* EGG (FIXED CLICKABLE) */
+/* EGG */
 #egg{
   cursor:pointer;
   user-select:none;
-  pointer-events:auto;
 }
 
 /* TERMINAL */
@@ -132,10 +127,11 @@ body.pattern-chevron{
   background:var(--screen);
   border-top:1px solid var(--border);
   padding:10px;
+  display:flex;
+  gap:8px;
 }
-
 textarea{
-  width:100%;
+  flex:1;
   height:70px;
   resize:none;
   background:#111;
@@ -143,6 +139,13 @@ textarea{
   border:1px solid var(--border);
   padding:8px;
   box-sizing:border-box;
+}
+button.send{
+  width:80px;
+  background:#fff;
+  color:#000;
+  border:none;
+  cursor:pointer;
 }
 
 /* MODAL */
@@ -154,22 +157,11 @@ textarea{
   align-items:center;
   justify-content:center;
 }
-
 .modal-content{
   background:var(--screen);
   border:1px solid var(--border);
   padding:15px;
   width:320px;
-}
-
-.btn{
-  width:100%;
-  margin-top:8px;
-  padding:8px;
-  background:#fff;
-  color:#000;
-  border:none;
-  cursor:pointer;
 }
 </style>
 </head>
@@ -182,7 +174,7 @@ textarea{
 
 <div class="menu-item" onclick="toggleMenu('fileMenu')">File
   <div id="fileMenu" class="dropdown">
-    <div onclick="openFile()">Load</div>
+    <div onclick="loadPrompt('default')">Load</div>
     <div onclick="resetSession()">Reset</div>
   </div>
 </div>
@@ -234,34 +226,21 @@ textarea{
 
 </div>
 
-<div id="terminal">566335006</div>
+<div id="terminal"></div>
 
 <div class="input-bar">
-<textarea id="input" disabled placeholder="Load a prompt to begin…" onkeydown="handleInput(event)"></textarea>
+<textarea id="input" disabled placeholder="Load a prompt to begin…"></textarea>
+<button class="send" onclick="send()">Send</button>
 </div>
 
-</div>
-
-<!-- NOTICE -->
-<div id="notice" class="modal">
-  <div class="modal-content">
-    <strong>Notice</strong>
-    <p>Do not enter personal info. Outputs may vary.</p>
-    <label><input type="checkbox" id="dontShow"> Don't show again</label>
-    <button class="btn" onclick="dismissNotice()">Continue</button>
-  </div>
 </div>
 
 <script>
 /* MENU */
 function toggleMenu(id){
   const el=document.getElementById(id);
-  if(el.style.display==="flex"){
-    el.style.display="none";
-  } else {
-    closeMenus();
-    el.style.display="flex";
-  }
+  if(el.style.display==="flex"){el.style.display="none";}
+  else{closeMenus();el.style.display="flex";}
 }
 function closeMenus(){
   document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
@@ -271,22 +250,22 @@ document.addEventListener('click',e=>{
 });
 
 /* TERMINAL */
-function append(t){
+function appendUser(text){
   const el=document.getElementById("terminal");
-  el.textContent+="\n"+t;
-  el.scrollTop=el.scrollHeight;
+  el.innerHTML += `<div style="text-align:right;font-style:italic;">${text}</div>`;
+}
+function appendLLM(text){
+  const el=document.getElementById("terminal");
+  el.innerHTML += `<div style="text-align:left;">${text}</div>`;
 }
 
-function handleInput(e){
+/* INPUT */
+function send(){
   const input=document.getElementById("input");
   if(input.disabled) return;
-
-  if(e.key==="Enter" && !e.shiftKey){
-    e.preventDefault();
-    append("> "+e.target.value);
-    append("...");
-    e.target.value="";
-  }
+  appendUser(input.value);
+  appendLLM("...");
+  input.value="";
 }
 
 /* STATE */
@@ -296,59 +275,38 @@ let currentScreen="standard";
 
 /* FLAVOR */
 function setFlavor(f){
-  currentFlavor=f;
-
   const map={
     vanilla:{bar:"#111",bezel:"#1a1a1a",screen:"#000",bg:"#000"},
     mint:{bar:"#052a1c",bezel:"#0b3f2c",screen:"#102f22",bg:"#02150d"},
     cocoa:{bar:"#2a1605",bezel:"#3f260b",screen:"#2f1f10",bg:"#140a02"},
     berry:{bar:"#051a2a",bezel:"#0b2a3f",screen:"#10222f",bg:"#020c15"},
     melon:{bar:"#2a0510",bezel:"#3f0b1f",screen:"#2f1018",bg:"#15020a"},
-    citrus:{bar:"#3a2a00",bezel:"#5a3f00",screen:"#2a2000",bg:"#120d00"}
+    citrus:{bar:"#665200",bezel:"#998000",screen:"#332900",bg:"#1a1400"}
   };
 
   document.documentElement.style.setProperty('--bar',map[f].bar);
   document.documentElement.style.setProperty('--bezel',map[f].bezel);
   document.documentElement.style.setProperty('--screen',map[f].screen);
   document.documentElement.style.setProperty('--bg',map[f].bg);
-
-  updateChecks();
 }
 
 /* PATTERN */
 function setPattern(p){
-  currentPattern=p;
   document.body.className="";
   if(p!=="none") document.body.classList.add("pattern-"+p);
-  updateChecks();
 }
 
 /* SCREEN */
 function setScreen(s){
-  currentScreen=s;
   const b=document.getElementById("bezel");
   b.classList.remove("wide","ultra");
   if(s==="wide") b.classList.add("wide");
   if(s==="ultra") b.classList.add("ultra");
-  updateChecks();
-}
-
-/* CHECKS */
-function updateChecks(){
-  document.querySelectorAll('[data-flavor]').forEach(el=>{
-    el.querySelector('.check').style.opacity=(el.dataset.flavor===currentFlavor)?1:0;
-  });
-  document.querySelectorAll('[data-pattern]').forEach(el=>{
-    el.querySelector('.check').style.opacity=(el.dataset.pattern===currentPattern)?1:0;
-  });
-  document.querySelectorAll('[data-screen]').forEach(el=>{
-    el.querySelector('.check').style.opacity=(el.dataset.screen===currentScreen)?1:0;
-  });
 }
 
 /* LOAD */
-function openFile(){
-  append("\nPrompt loaded.");
+function loadPrompt(name){
+  appendLLM("Prompt loaded.");
   const input=document.getElementById("input");
   input.disabled=false;
   input.placeholder="Type to interact…";
@@ -356,7 +314,7 @@ function openFile(){
 
 /* RESET */
 function resetSession(){
-  document.getElementById("terminal").textContent="566335006";
+  document.getElementById("terminal").innerHTML="";
   const input=document.getElementById("input");
   input.disabled=true;
   input.placeholder="Load a prompt to begin…";
@@ -365,57 +323,17 @@ function resetSession(){
 /* NOTICE */
 function showNotice(force=false){
   if(localStorage.getItem("seen") && !force) return;
-  document.getElementById("notice").style.display="flex";
+  alert("Do not enter personal info.");
 }
-function dismissNotice(){
-  if(document.getElementById("dontShow").checked){
-    localStorage.setItem("seen","1");
-  }
-  document.getElementById("notice").style.display="none";
-}
-showNotice();
 
-/* EGG FIXED */
+/* EGG */
 let clicks=0;
-const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-
-function tap(){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.frequency.value=700;
-  g.gain.value=0.03;
-  o.connect(g).connect(audioCtx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),25);
-}
-
-function whack(){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.frequency.value=120;
-  g.gain.value=0.1;
-  o.connect(g).connect(audioCtx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),120);
-}
-
-document.getElementById("egg").addEventListener("click",(e)=>{
-  e.stopPropagation();
-  if(audioCtx.state==="suspended") audioCtx.resume();
-
+document.getElementById("egg").onclick=()=>{
   clicks++;
-
-  if(clicks<99){
-    tap();
-  }else{
-    whack();
-    clicks=0;
-    append("\nHidden unlocked.");
+  if(clicks===99){
+    appendLLM("Goose Sweeper unlocked.");
   }
-});
-
-/* INIT */
-updateChecks();
+};
 </script>
 
 </body>
