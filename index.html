@@ -71,9 +71,9 @@ body.pattern-chevron{
   margin-left:auto;
   font-weight:bold;
   margin-right:10px;
-  user-select:none;
 }
 
+/* DROPDOWN */
 .dropdown{
   position:absolute;
   top:22px;
@@ -86,29 +86,31 @@ body.pattern-chevron{
   z-index:50;
 }
 
-.dropdown > div{
-  padding:6px 8px;
-  cursor:pointer;
+.dropdown-item{
+  padding:6px 10px;
   white-space:nowrap;
+  position:relative;
 }
 
-.dropdown > div:hover{background:#222;}
+.dropdown-item:hover{
+  background:#222;
+}
 
+/* SUBMENU (FIXED) */
 .submenu{
   position:absolute;
   top:0;
   left:100%;
-  display:none;
-  flex-direction:column;
   background:var(--screen);
   border:1px solid var(--border);
+  display:none;
+  flex-direction:column;
+  min-width:160px;
 }
 
-.dropdown > div:hover > .submenu{
+.dropdown-item:hover > .submenu{
   display:flex;
 }
-
-.check{opacity:0;}
 
 /* TERMINAL */
 #terminal{
@@ -125,6 +127,7 @@ body.pattern-chevron{
   padding:10px;
   border-top:1px solid var(--border);
 }
+
 textarea{
   flex:1;
   height:70px;
@@ -134,7 +137,8 @@ textarea{
   border:1px solid var(--border);
   padding:8px;
 }
-button.send{
+
+button{
   width:80px;
 }
 
@@ -151,8 +155,8 @@ button.send{
 .modal-content{
   background:var(--screen);
   border:1px solid var(--border);
-  padding:15px;
-  width:300px;
+  padding:20px;
+  width:320px;
 }
 </style>
 </head>
@@ -165,48 +169,48 @@ button.send{
 
 <div class="menu-item" onclick="toggleMenu('fileMenu')">File
   <div id="fileMenu" class="dropdown">
-    <div onclick="openLoadModal()">Load</div>
-    <div onclick="resetSession()">Reset</div>
+    <div class="dropdown-item" onclick="openLoad()">Load</div>
+    <div class="dropdown-item" onclick="resetSession()">Reset</div>
   </div>
 </div>
 
 <div class="menu-item" onclick="toggleMenu('viewMenu')">View
   <div id="viewMenu" class="dropdown">
 
-    <div>Flavors ▶
+    <div class="dropdown-item">Flavors
       <div class="submenu">
-        <div onclick="setFlavor('vanilla')">Vanilla</div>
-        <div onclick="setFlavor('mint')">Mint</div>
-        <div onclick="setFlavor('cocoa')">Cocoa</div>
-        <div onclick="setFlavor('berry')">Berry</div>
-        <div onclick="setFlavor('melon')">Melon</div>
-        <div onclick="setFlavor('citrus')">Citrus</div>
+        <div class="dropdown-item" onclick="setFlavor('vanilla')">Vanilla</div>
+        <div class="dropdown-item" onclick="setFlavor('mint')">Mint</div>
+        <div class="dropdown-item" onclick="setFlavor('cocoa')">Cocoa</div>
+        <div class="dropdown-item" onclick="setFlavor('berry')">Berry</div>
+        <div class="dropdown-item" onclick="setFlavor('melon')">Melon</div>
+        <div class="dropdown-item" onclick="setFlavor('citrus')">Citrus</div>
       </div>
     </div>
 
-    <div>Patterns ▶
+    <div class="dropdown-item">Patterns
       <div class="submenu">
-        <div onclick="setPattern('none')">None</div>
-        <div onclick="setPattern('horizontal')">Horizontal</div>
-        <div onclick="setPattern('vertical')">Vertical</div>
-        <div onclick="setPattern('diagonal')">Diagonal</div>
-        <div onclick="setPattern('dots')">Dots</div>
-        <div onclick="setPattern('chevron')">Chevron</div>
+        <div class="dropdown-item" onclick="setPattern('none')">None</div>
+        <div class="dropdown-item" onclick="setPattern('horizontal')">Horizontal</div>
+        <div class="dropdown-item" onclick="setPattern('vertical')">Vertical</div>
+        <div class="dropdown-item" onclick="setPattern('diagonal')">Diagonal</div>
+        <div class="dropdown-item" onclick="setPattern('dots')">Dots</div>
+        <div class="dropdown-item" onclick="setPattern('chevron')">Chevron</div>
       </div>
     </div>
 
-    <div>Screen ▶
+    <div class="dropdown-item">Screen
       <div class="submenu">
-        <div onclick="setScreen('standard')">Standard</div>
-        <div onclick="setScreen('wide')">Wide</div>
-        <div onclick="setScreen('ultra')">Ultrawide</div>
+        <div class="dropdown-item" onclick="setScreen('standard')">Standard</div>
+        <div class="dropdown-item" onclick="setScreen('wide')">Wide</div>
+        <div class="dropdown-item" onclick="setScreen('ultra')">Ultrawide</div>
       </div>
     </div>
 
   </div>
 </div>
 
-<div class="menu-item" onclick="showNotice()">Help</div>
+<div class="menu-item" onclick="openHelp()">Help</div>
 
 <div class="system-label">566335006</div>
 <div id="egg">🥚</div>
@@ -217,7 +221,7 @@ button.send{
 
 <div class="input-bar">
 <textarea id="input" disabled placeholder="Load a prompt to begin…"></textarea>
-<button class="send" onclick="send()">Send</button>
+<button onclick="send()">Send</button>
 </div>
 
 </div>
@@ -225,83 +229,81 @@ button.send{
 <!-- LOAD MODAL -->
 <div id="loadModal" class="modal">
   <div class="modal-content">
-    <div>Select Prompt</div>
-    <button onclick="loadPrompt('default')">Default Prompt</button>
-    <button id="gooseBtn" style="display:none;" onclick="loadPrompt('goose')">Goose Sweeper</button>
+    <div style="margin-bottom:10px;">Select Prompt</div>
+    <button onclick="loadPrompt()">Default Prompt</button>
+    <button id="gooseBtn" style="display:none;" onclick="loadGoose()">Goose Sweeper</button>
     <button onclick="closeModal('loadModal')">Close</button>
   </div>
 </div>
 
-<!-- NOTICE MODAL -->
-<div id="noticeModal" class="modal">
+<!-- HELP MODAL -->
+<div id="helpModal" class="modal">
   <div class="modal-content">
-    <div>Do not enter personal info.</div>
-    <label><input type="checkbox" id="dontShow"> Don't show again</label>
-    <button onclick="dismissNotice()">Continue</button>
+    <div style="margin-bottom:10px;">Promptware Terminal</div>
+    <div style="margin-bottom:10px;">Load a prompt to begin.</div>
+    <button onclick="closeModal('helpModal')">Close</button>
+  </div>
+</div>
+
+<!-- GOOSE MODAL -->
+<div id="gooseModal" class="modal">
+  <div class="modal-content">
+    <div style="margin-bottom:10px;">Goose Sweeper Unlocked</div>
+    <button onclick="loadGoose()">Load Goose Sweeper</button>
+    <button onclick="closeModal('gooseModal')">Close</button>
   </div>
 </div>
 
 <script>
-/* MENU */
+/* MENU CONTROL */
 function toggleMenu(id){
-  const el=document.getElementById(id);
-  el.style.display=el.style.display==="flex"?"none":"flex";
+  closeMenus();
+  document.getElementById(id).style.display="flex";
+}
+function closeMenus(){
+  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
 }
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.menu-bar')){
-    document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
-  }
+  if(!e.target.closest('.menu-bar')) closeMenus();
 });
 
-/* MODALS */
-function openLoadModal(){
-  document.getElementById("loadModal").style.display="flex";
-}
-function closeModal(id){
-  document.getElementById(id).style.display="none";
-}
-
-/* NOTICE */
-function showNotice(){
-  if(localStorage.getItem("seen")) return;
-  document.getElementById("noticeModal").style.display="flex";
-}
-function dismissNotice(){
-  if(document.getElementById("dontShow").checked){
-    localStorage.setItem("seen","1");
-  }
-  closeModal("noticeModal");
-}
-showNotice();
-
 /* TERMINAL */
-function appendUser(text){
-  document.getElementById("terminal").innerHTML += `<div style="text-align:right;">${text}</div>`;
+function appendUser(t){
+  document.getElementById("terminal").innerHTML += `<div style="text-align:right;">${t}</div>`;
 }
-function appendLLM(text){
-  document.getElementById("terminal").innerHTML += `<div>${text}</div>`;
+function appendLLM(t){
+  document.getElementById("terminal").innerHTML += `<div>${t}</div>`;
 }
 
 function send(){
-  const input=document.getElementById("input");
+  let input=document.getElementById("input");
   if(input.disabled) return;
   appendUser(input.value);
   appendLLM("...");
   input.value="";
 }
 
+/* MODALS */
+function openLoad(){ document.getElementById("loadModal").style.display="flex"; }
+function openHelp(){ document.getElementById("helpModal").style.display="flex"; }
+function closeModal(id){ document.getElementById(id).style.display="none"; }
+
 /* LOAD */
-function loadPrompt(name){
+function loadPrompt(){
   closeModal("loadModal");
-  appendLLM(name==="goose"?"Goose Sweeper started.":"Prompt loaded.");
+  appendLLM("Prompt loaded.");
+  document.getElementById("input").disabled=false;
+}
+function loadGoose(){
+  closeModal("gooseModal");
+  appendLLM("Goose Sweeper started.");
   document.getElementById("input").disabled=false;
 }
 
 /* RESET */
 function resetSession(){
   document.getElementById("terminal").innerHTML="";
-  const input=document.getElementById("input");
-  input.disabled=true;
+  document.getElementById("input").disabled=true;
 }
 
 /* EGG */
@@ -335,11 +337,23 @@ document.getElementById("egg").onclick=()=>{
   if(clicks===99){
     whack();
     document.getElementById("gooseBtn").style.display="block";
-    openLoadModal();
+    document.getElementById("gooseModal").style.display="flex";
   }
 };
 
 /* VIEW */
+function setPattern(p){
+  document.body.className="";
+  if(p!=="none") document.body.classList.add("pattern-"+p);
+}
+
+function setScreen(s){
+  let b=document.getElementById("bezel");
+  b.classList.remove("wide","ultra");
+  if(s==="wide") b.classList.add("wide");
+  if(s==="ultra") b.classList.add("ultra");
+}
+
 function setFlavor(f){
   const map={
     citrus:{bar:"#ffcc33",bezel:"#cc9900",screen:"#332600",bg:"#1a1400"}
@@ -350,16 +364,6 @@ function setFlavor(f){
     document.documentElement.style.setProperty('--screen',map[f].screen);
     document.documentElement.style.setProperty('--bg',map[f].bg);
   }
-}
-function setPattern(p){
-  document.body.className="";
-  if(p!=="none") document.body.classList.add("pattern-"+p);
-}
-function setScreen(s){
-  const b=document.getElementById("bezel");
-  b.classList.remove("wide","ultra");
-  if(s==="wide") b.classList.add("wide");
-  if(s==="ultra") b.classList.add("ultra");
 }
 </script>
 
