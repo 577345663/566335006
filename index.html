@@ -4,368 +4,803 @@
 <meta charset="UTF-8">
 <title>Promptware Terminal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-:root{
-  --bar:#111;
-  --bezel:#1a1a1a;
-  --screen:#000;
-  --bg:#000;
-  --text:#fff;
-  --border:#333;
-}
+  :root{
+    --bg:#000000;
+    --bar:#111111;
+    --bezel:#1a1a1a;
+    --screen:#000000;
+    --text:#ffffff;
+    --border:#333333;
+    --muted:#b9b9b9;
+    --hover:#222222;
+    --row-h: 44px;
+  }
 
-body{
-  margin:0;
-  background:var(--bg);
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  font-family:"Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
-  color:var(--text);
-}
+  *{box-sizing:border-box}
 
-/* PATTERNS */
-body.pattern-horizontal{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
-body.pattern-vertical{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 6px);}
-body.pattern-diagonal{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05)0px,rgba(255,255,255,.05)1px,transparent 1px,transparent 8px);}
-body.pattern-dots{background-image:radial-gradient(circle,rgba(255,255,255,.05)1px,transparent 1px);background-size:12px 12px;}
-body.pattern-chevron{
-  background-image:
-    linear-gradient(135deg, rgba(255,255,255,.04) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(255,255,255,.04) 25%, transparent 25%);
-  background-size:16px 16px;
-}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
+    overflow:hidden;
+  }
 
-/* BEZEL */
-.bezel{
-  width:900px;
-  max-width:95vw;
-  height:85vh;
-  margin-top:2vh;
-  background:var(--bezel);
-  border:2px solid var(--border);
-  display:flex;
-  flex-direction:column;
-}
-.bezel.wide{width:1100px;}
-.bezel.ultra{width:95vw;}
+  /* Background patterns */
+  body.pattern-horizontal{
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.05) 0px,
+      rgba(255,255,255,.05) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
 
-/* MENU */
-.menu-bar{
-  background:var(--bar);
-  display:flex;
-  padding:6px 10px;
-  font-size:14px;
-  align-items:center;
-}
+  body.pattern-vertical{
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.05) 0px,
+      rgba(255,255,255,.05) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
 
-.menu-item{
-  margin-right:20px;
-  cursor:pointer;
-  position:relative;
-}
+  body.pattern-diagonal{
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.05) 0px,
+      rgba(255,255,255,.05) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  }
 
-.system-label{
-  margin-left:auto;
-  font-weight:bold;
-  margin-right:10px;
-}
+  body.pattern-dots{
+    background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
 
-/* DROPDOWN */
-.dropdown{
-  position:absolute;
-  top:22px;
-  left:0;
-  background:var(--screen);
-  border:1px solid var(--border);
-  display:none;
-  flex-direction:column;
-  min-width:180px;
-  z-index:50;
-}
+  body.pattern-chevron{
+    background-image:
+      linear-gradient(135deg, rgba(255,255,255,.04) 25%, transparent 25%),
+      linear-gradient(225deg, rgba(255,255,255,.04) 25%, transparent 25%);
+    background-size: 18px 18px;
+    background-position: 0 0, 9px 9px;
+  }
 
-.dropdown-item{
-  padding:6px 10px;
-  white-space:nowrap;
-  position:relative;
-}
+  .bezel{
+    width:900px;
+    max-width:95vw;
+    height:85vh;
+    margin-top:2vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bezel);
+    border:2px solid var(--border);
+  }
 
-.dropdown-item:hover{
-  background:#222;
-}
+  .bezel.wide{
+    width:1100px;
+  }
 
-/* SUBMENU (FIXED) */
-.submenu{
-  position:absolute;
-  top:0;
-  left:100%;
-  background:var(--screen);
-  border:1px solid var(--border);
-  display:none;
-  flex-direction:column;
-  min-width:160px;
-}
+  .bezel.ultra{
+    width:95vw;
+  }
 
-.dropdown-item:hover > .submenu{
-  display:flex;
-}
+  .menu-bar{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:6px 10px;
+    background:var(--bar);
+    border-bottom:1px solid var(--border);
+    user-select:none;
+  }
 
-/* TERMINAL */
-#terminal{
-  flex:1;
-  background:var(--screen);
-  padding:16px;
-  overflow-y:auto;
-}
+  .menu-item{
+    position:relative;
+    cursor:pointer;
+    padding:2px 0;
+  }
 
-/* INPUT */
-.input-bar{
-  display:flex;
-  gap:8px;
-  padding:10px;
-  border-top:1px solid var(--border);
-}
+  .menu-label{
+    display:block;
+  }
 
-textarea{
-  flex:1;
-  height:70px;
-  resize:none;
-  background:#111;
-  color:#fff;
-  border:1px solid var(--border);
-  padding:8px;
-}
+  .system-label{
+    margin-left:auto;
+    font-weight:700;
+    user-select:none;
+  }
 
-button{
-  width:80px;
-}
+  #egg{
+    margin-left:2px;
+    padding:0;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font:inherit;
+    line-height:1;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    appearance:none;
+  }
 
-/* MODAL */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
+  #egg:focus{
+    outline:none;
+  }
 
-.modal-content{
-  background:var(--screen);
-  border:1px solid var(--border);
-  padding:20px;
-  width:320px;
-}
+  .top-dropdown,
+  .submenu{
+    position:absolute;
+    min-width:190px;
+    display:none;
+    flex-direction:column;
+    background:var(--screen);
+    border:1px solid var(--border);
+    z-index:100;
+  }
+
+  .top-dropdown{
+    top:24px;
+    left:0;
+  }
+
+  .submenu{
+    top:-1px;
+    left:100%;
+  }
+
+  .dropdown-row{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 10px;
+    white-space:nowrap;
+  }
+
+  .dropdown-row:hover{
+    background:var(--hover);
+  }
+
+  .dropdown-row.branch:hover > .submenu{
+    display:flex;
+  }
+
+  .check{
+    opacity:0;
+    margin-left:14px;
+    flex:0 0 auto;
+  }
+
+  .check.visible{
+    opacity:1;
+  }
+
+  #terminal{
+    flex:1;
+    background:var(--screen);
+    padding:16px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .msg{
+    max-width:86%;
+    padding:8px 10px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.02);
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+
+  .msg.user{
+    align-self:flex-end;
+    text-align:left;
+  }
+
+  .msg.llm{
+    align-self:flex-start;
+  }
+
+  .input-bar{
+    display:flex;
+    gap:8px;
+    padding:10px;
+    background:var(--screen);
+    border-top:1px solid var(--border);
+  }
+
+  textarea{
+    flex:1;
+    min-height:var(--row-h);
+    max-height:var(--row-h);
+    resize:none;
+    overflow-y:auto;
+    padding:10px;
+    color:var(--text);
+    background:#111111;
+    border:1px solid var(--border);
+    font:inherit;
+  }
+
+  textarea:disabled{
+    color:var(--muted);
+  }
+
+  .send-btn{
+    width:84px;
+    border:1px solid var(--border);
+    background:#efefef;
+    color:#000;
+    font:inherit;
+    cursor:pointer;
+  }
+
+  .send-btn:disabled{
+    cursor:default;
+    opacity:.65;
+  }
+
+  .modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.75);
+    z-index:500;
+  }
+
+  .modal.open{
+    display:flex;
+  }
+
+  .modal-card{
+    width:420px;
+    max-width:90vw;
+    background:var(--screen);
+    color:var(--text);
+    border:1px solid var(--border);
+    padding:16px;
+  }
+
+  .modal-title{
+    font-weight:700;
+    margin-bottom:12px;
+  }
+
+  .modal-copy{
+    color:var(--muted);
+    line-height:1.45;
+    margin-bottom:12px;
+  }
+
+  .modal-actions{
+    display:flex;
+    gap:8px;
+    justify-content:flex-end;
+    margin-top:12px;
+  }
+
+  .modal-btn{
+    min-width:110px;
+    padding:8px 12px;
+    border:1px solid var(--border);
+    background:#efefef;
+    color:#000;
+    font:inherit;
+    cursor:pointer;
+  }
+
+  .file-list{
+    border:1px solid var(--border);
+    margin-top:8px;
+  }
+
+  .file-head,
+  .file-row{
+    display:grid;
+    grid-template-columns: 1fr 84px;
+    gap:10px;
+    align-items:center;
+    padding:8px 10px;
+  }
+
+  .file-head{
+    color:var(--muted);
+    border-bottom:1px solid var(--border);
+  }
+
+  .file-row{
+    cursor:pointer;
+  }
+
+  .file-row:hover,
+  .file-row.selected{
+    background:var(--hover);
+  }
+
+  .muted{
+    color:var(--muted);
+  }
 </style>
 </head>
-
 <body>
 
-<div class="bezel" id="bezel">
-
-<div class="menu-bar">
-
-<div class="menu-item" onclick="toggleMenu('fileMenu')">File
-  <div id="fileMenu" class="dropdown">
-    <div class="dropdown-item" onclick="openLoad()">Load</div>
-    <div class="dropdown-item" onclick="resetSession()">Reset</div>
-  </div>
-</div>
-
-<div class="menu-item" onclick="toggleMenu('viewMenu')">View
-  <div id="viewMenu" class="dropdown">
-
-    <div class="dropdown-item">Flavors
-      <div class="submenu">
-        <div class="dropdown-item" onclick="setFlavor('vanilla')">Vanilla</div>
-        <div class="dropdown-item" onclick="setFlavor('mint')">Mint</div>
-        <div class="dropdown-item" onclick="setFlavor('cocoa')">Cocoa</div>
-        <div class="dropdown-item" onclick="setFlavor('berry')">Berry</div>
-        <div class="dropdown-item" onclick="setFlavor('melon')">Melon</div>
-        <div class="dropdown-item" onclick="setFlavor('citrus')">Citrus</div>
+  <div class="bezel" id="bezel">
+    <div class="menu-bar">
+      <div class="menu-item"
+           data-top-menu="fileMenu"
+           onclick="toggleTopMenu(event, 'fileMenu')"
+           onmouseenter="hoverTopMenu('fileMenu')"
+           onmouseleave="queueCloseMenus()">
+        <span class="menu-label">File</span>
+        <div class="top-dropdown" id="fileMenu">
+          <div class="dropdown-row" onclick="openLoadModal()">Load</div>
+          <div class="dropdown-row" onclick="resetSession()">Reset</div>
+        </div>
       </div>
+
+      <div class="menu-item"
+           data-top-menu="viewMenu"
+           onclick="toggleTopMenu(event, 'viewMenu')"
+           onmouseenter="hoverTopMenu('viewMenu')"
+           onmouseleave="queueCloseMenus()">
+        <span class="menu-label">View</span>
+        <div class="top-dropdown" id="viewMenu">
+          <div class="dropdown-row branch">
+            <span>Flavors</span>
+            <span></span>
+            <div class="submenu">
+              <div class="dropdown-row" data-flavor="vanilla" onclick="setFlavor('vanilla')"><span>Vanilla</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-flavor="mint" onclick="setFlavor('mint')"><span>Mint</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-flavor="cocoa" onclick="setFlavor('cocoa')"><span>Cocoa</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-flavor="berry" onclick="setFlavor('berry')"><span>Berry</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-flavor="melon" onclick="setFlavor('melon')"><span>Melon</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-flavor="citrus" onclick="setFlavor('citrus')"><span>Citrus</span><span class="check">✓</span></div>
+            </div>
+          </div>
+
+          <div class="dropdown-row branch">
+            <span>Patterns</span>
+            <span></span>
+            <div class="submenu">
+              <div class="dropdown-row" data-pattern="none" onclick="setPattern('none')"><span>None</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-pattern="horizontal" onclick="setPattern('horizontal')"><span>Horizontal</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-pattern="vertical" onclick="setPattern('vertical')"><span>Vertical</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-pattern="diagonal" onclick="setPattern('diagonal')"><span>Diagonal</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-pattern="dots" onclick="setPattern('dots')"><span>Dots</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-pattern="chevron" onclick="setPattern('chevron')"><span>Chevron</span><span class="check">✓</span></div>
+            </div>
+          </div>
+
+          <div class="dropdown-row branch">
+            <span>Screen</span>
+            <span></span>
+            <div class="submenu">
+              <div class="dropdown-row" data-screen="standard" onclick="setScreen('standard')"><span>Standard</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-screen="wide" onclick="setScreen('wide')"><span>Wide</span><span class="check">✓</span></div>
+              <div class="dropdown-row" data-screen="ultra" onclick="setScreen('ultra')"><span>Ultrawide</span><span class="check">✓</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-item"
+           data-top-menu="helpMenu"
+           onclick="toggleTopMenu(event, 'helpMenu')"
+           onmouseenter="hoverTopMenu('helpMenu')"
+           onmouseleave="queueCloseMenus()">
+        <span class="menu-label">Help</span>
+        <div class="top-dropdown" id="helpMenu">
+          <div class="dropdown-row" onclick="openNoticeModal(true)">About</div>
+        </div>
+      </div>
+
+      <div class="system-label">566335006</div>
+      <button id="egg" title="🥚" aria-label="egg">🥚</button>
     </div>
 
-    <div class="dropdown-item">Patterns
-      <div class="submenu">
-        <div class="dropdown-item" onclick="setPattern('none')">None</div>
-        <div class="dropdown-item" onclick="setPattern('horizontal')">Horizontal</div>
-        <div class="dropdown-item" onclick="setPattern('vertical')">Vertical</div>
-        <div class="dropdown-item" onclick="setPattern('diagonal')">Diagonal</div>
-        <div class="dropdown-item" onclick="setPattern('dots')">Dots</div>
-        <div class="dropdown-item" onclick="setPattern('chevron')">Chevron</div>
+    <div id="terminal"></div>
+
+    <div class="input-bar">
+      <textarea id="input" rows="1" disabled placeholder="Load a prompt to begin…"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendInput()" disabled>Send</button>
+    </div>
+  </div>
+
+  <!-- Notice / About -->
+  <div class="modal" id="noticeModal">
+    <div class="modal-card">
+      <div class="modal-title">Promptware Terminal</div>
+      <div class="modal-copy">
+        This console runs AI-powered games and tools.<br><br>
+        • Do not enter personal or sensitive information<br>
+        • Outputs may vary<br>
+        • Use it to play, experiment, and have fun
+      </div>
+      <label class="muted">
+        <input type="checkbox" id="dontShowAgain">
+        Don’t show again
+      </label>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeNoticeModal()">Continue</button>
       </div>
     </div>
+  </div>
 
-    <div class="dropdown-item">Screen
-      <div class="submenu">
-        <div class="dropdown-item" onclick="setScreen('standard')">Standard</div>
-        <div class="dropdown-item" onclick="setScreen('wide')">Wide</div>
-        <div class="dropdown-item" onclick="setScreen('ultra')">Ultrawide</div>
+  <!-- Load -->
+  <div class="modal" id="loadModal">
+    <div class="modal-card">
+      <div class="modal-title">Load Prompt</div>
+
+      <div class="file-list">
+        <div class="file-head">
+          <div>Name</div>
+          <div>Size</div>
+        </div>
+
+        <div class="file-row" data-prompt="llm" onclick="selectPrompt('llm', this)">
+          <div>Long Lost Mines</div>
+          <div>12.4k</div>
+        </div>
+
+        <div class="file-row" data-prompt="lunar" onclick="selectPrompt('lunar', this)">
+          <div>Lonely Lunar Module</div>
+          <div>18.9k</div>
+        </div>
+
+        <div class="file-row" data-prompt="motors" onclick="selectPrompt('motors', this)">
+          <div>Last Lap Motors</div>
+          <div>6.2k</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeModal('loadModal')">Close</button>
+        <button class="modal-btn" onclick="loadSelectedPrompt()">Load</button>
       </div>
     </div>
-
   </div>
-</div>
 
-<div class="menu-item" onclick="openHelp()">Help</div>
-
-<div class="system-label">566335006</div>
-<div id="egg">🥚</div>
-
-</div>
-
-<div id="terminal"></div>
-
-<div class="input-bar">
-<textarea id="input" disabled placeholder="Load a prompt to begin…"></textarea>
-<button onclick="send()">Send</button>
-</div>
-
-</div>
-
-<!-- LOAD MODAL -->
-<div id="loadModal" class="modal">
-  <div class="modal-content">
-    <div style="margin-bottom:10px;">Select Prompt</div>
-    <button onclick="loadPrompt()">Default Prompt</button>
-    <button id="gooseBtn" style="display:none;" onclick="loadGoose()">Goose Sweeper</button>
-    <button onclick="closeModal('loadModal')">Close</button>
+  <!-- Hidden Goose Sweeper -->
+  <div class="modal" id="gooseModal">
+    <div class="modal-card">
+      <div class="modal-title">Goose Sweeper</div>
+      <div class="modal-copy">
+        Hidden Promptware unlocked.
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeModal('gooseModal')">Close</button>
+        <button class="modal-btn" onclick="loadGooseSweeper()">Load Goose Sweeper</button>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- HELP MODAL -->
-<div id="helpModal" class="modal">
-  <div class="modal-content">
-    <div style="margin-bottom:10px;">Promptware Terminal</div>
-    <div style="margin-bottom:10px;">Load a prompt to begin.</div>
-    <button onclick="closeModal('helpModal')">Close</button>
-  </div>
-</div>
-
-<!-- GOOSE MODAL -->
-<div id="gooseModal" class="modal">
-  <div class="modal-content">
-    <div style="margin-bottom:10px;">Goose Sweeper Unlocked</div>
-    <button onclick="loadGoose()">Load Goose Sweeper</button>
-    <button onclick="closeModal('gooseModal')">Close</button>
-  </div>
-</div>
 
 <script>
-/* MENU CONTROL */
-function toggleMenu(id){
-  closeMenus();
-  document.getElementById(id).style.display="flex";
-}
-function closeMenus(){
-  document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');
-}
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.menu-bar')) closeMenus();
-});
+  /* ---------- state ---------- */
+  let activeTopMenu = null;
+  let topMenuCloseTimer = null;
 
-/* TERMINAL */
-function appendUser(t){
-  document.getElementById("terminal").innerHTML += `<div style="text-align:right;">${t}</div>`;
-}
-function appendLLM(t){
-  document.getElementById("terminal").innerHTML += `<div>${t}</div>`;
-}
+  let currentFlavor = 'vanilla';
+  let currentPattern = 'none';
+  let currentScreen = 'standard';
 
-function send(){
-  let input=document.getElementById("input");
-  if(input.disabled) return;
-  appendUser(input.value);
-  appendLLM("...");
-  input.value="";
-}
+  let chatRows = 1;
+  const maxCharsPerLine = 90;
 
-/* MODALS */
-function openLoad(){ document.getElementById("loadModal").style.display="flex"; }
-function openHelp(){ document.getElementById("helpModal").style.display="flex"; }
-function closeModal(id){ document.getElementById(id).style.display="none"; }
+  let selectedPrompt = null;
+  let gooseUnlocked = false;
+  let eggClicks = 0;
 
-/* LOAD */
-function loadPrompt(){
-  closeModal("loadModal");
-  appendLLM("Prompt loaded.");
-  document.getElementById("input").disabled=false;
-}
-function loadGoose(){
-  closeModal("gooseModal");
-  appendLLM("Goose Sweeper started.");
-  document.getElementById("input").disabled=false;
-}
-
-/* RESET */
-function resetSession(){
-  document.getElementById("terminal").innerHTML="";
-  document.getElementById("input").disabled=true;
-}
-
-/* EGG */
-let clicks=0;
-const ctx=new (window.AudioContext||window.webkitAudioContext)();
-
-function tap(){
-  const o=ctx.createOscillator();
-  const g=ctx.createGain();
-  o.frequency.value=700;
-  g.gain.value=0.03;
-  o.connect(g).connect(ctx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),25);
-}
-
-function whack(){
-  const o=ctx.createOscillator();
-  const g=ctx.createGain();
-  o.frequency.value=120;
-  g.gain.value=0.1;
-  o.connect(g).connect(ctx.destination);
-  o.start();
-  setTimeout(()=>o.stop(),120);
-}
-
-document.getElementById("egg").onclick=()=>{
-  if(ctx.state==="suspended") ctx.resume();
-  clicks++;
-  tap();
-  if(clicks===99){
-    whack();
-    document.getElementById("gooseBtn").style.display="block";
-    document.getElementById("gooseModal").style.display="flex";
-  }
-};
-
-/* VIEW */
-function setPattern(p){
-  document.body.className="";
-  if(p!=="none") document.body.classList.add("pattern-"+p);
-}
-
-function setScreen(s){
-  let b=document.getElementById("bezel");
-  b.classList.remove("wide","ultra");
-  if(s==="wide") b.classList.add("wide");
-  if(s==="ultra") b.classList.add("ultra");
-}
-
-function setFlavor(f){
-  const map={
-    citrus:{bar:"#ffcc33",bezel:"#cc9900",screen:"#332600",bg:"#1a1400"}
+  const promptConfigs = {
+    llm:   { label: 'Long Lost Mines',     chatRows: 1 },
+    lunar: { label: 'Lonely Lunar Module', chatRows: 1 },
+    motors:{ label: 'Last Lap Motors',     chatRows: 1 },
+    goose: { label: 'Goose Sweeper',       chatRows: 1 }
   };
-  if(map[f]){
-    document.documentElement.style.setProperty('--bar',map[f].bar);
-    document.documentElement.style.setProperty('--bezel',map[f].bezel);
-    document.documentElement.style.setProperty('--screen',map[f].screen);
-    document.documentElement.style.setProperty('--bg',map[f].bg);
-  }
-}
-</script>
 
+  const flavorMap = {
+    vanilla: { bar:'#111111', bezel:'#1a1a1a', screen:'#000000', bg:'#000000' },
+    mint:    { bar:'#103225', bezel:'#1b4d39', screen:'#10241c', bg:'#08150f' },
+    cocoa:   { bar:'#372312', bezel:'#56381f', screen:'#24170e', bg:'#140d08' },
+    berry:   { bar:'#16273c', bezel:'#243c5a', screen:'#101b28', bg:'#09111a' },
+    melon:   { bar:'#3b1923', bezel:'#5d2737', screen:'#271119', bg:'#17090d' },
+    citrus:  { bar:'#d88b1e', bezel:'#f0a330', screen:'#4a2f06', bg:'#9a5700' }
+  };
+
+  /* ---------- menu ---------- */
+  function closeTopMenus() {
+    document.querySelectorAll('.top-dropdown').forEach(el => el.style.display = 'none');
+    activeTopMenu = null;
+  }
+
+  function queueCloseMenus() {
+    clearTimeout(topMenuCloseTimer);
+    topMenuCloseTimer = setTimeout(() => closeTopMenus(), 120);
+  }
+
+  function cancelCloseMenus() {
+    clearTimeout(topMenuCloseTimer);
+  }
+
+  function openTopMenu(id) {
+    closeTopMenus();
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = 'flex';
+      activeTopMenu = id;
+    }
+  }
+
+  function toggleTopMenu(event, id) {
+    event.stopPropagation();
+    cancelCloseMenus();
+    if (activeTopMenu === id) {
+      closeTopMenus();
+    } else {
+      openTopMenu(id);
+    }
+  }
+
+  function hoverTopMenu(id) {
+    cancelCloseMenus();
+    if (activeTopMenu && activeTopMenu !== id) {
+      openTopMenu(id);
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.menu-bar')) {
+      closeTopMenus();
+    }
+  });
+
+  /* ---------- modals ---------- */
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function openNoticeModal(force = false) {
+    if (!force && localStorage.getItem('pw_seen_notice') === '1') return;
+    document.getElementById('dontShowAgain').checked = localStorage.getItem('pw_seen_notice') === '1';
+    openModal('noticeModal');
+    closeTopMenus();
+  }
+
+  function closeNoticeModal() {
+    if (document.getElementById('dontShowAgain').checked) {
+      localStorage.setItem('pw_seen_notice', '1');
+    }
+    closeModal('noticeModal');
+  }
+
+  /* ---------- terminal ---------- */
+  const terminal = document.getElementById('terminal');
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('sendBtn');
+
+  function appendUser(text) {
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = text;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function appendLLM(text) {
+    const div = document.createElement('div');
+    div.className = 'msg llm';
+    div.textContent = text;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function setChatRows(rows) {
+    chatRows = Math.max(1, Math.min(5, rows));
+    input.rows = chatRows;
+    input.maxLength = chatRows * maxCharsPerLine;
+    const lineHeight = 24;
+    const padding = 20;
+    const height = (chatRows * lineHeight) + padding;
+    document.documentElement.style.setProperty('--row-h', `${height}px`);
+    input.style.height = `${height}px`;
+    input.style.minHeight = `${height}px`;
+    input.style.maxHeight = `${height}px`;
+  }
+
+  input.addEventListener('input', () => {
+    const max = chatRows * maxCharsPerLine;
+    if (input.value.length > max) {
+      input.value = input.value.slice(0, max);
+    }
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendInput();
+    }
+  });
+
+  function enableInput(rows = 1) {
+    setChatRows(rows);
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.placeholder = 'Type to interact…';
+    input.focus();
+  }
+
+  function disableInput() {
+    setChatRows(1);
+    input.disabled = true;
+    sendBtn.disabled = true;
+    input.placeholder = 'Load a prompt to begin…';
+    input.value = '';
+  }
+
+  function sendInput() {
+    if (input.disabled) return;
+    const text = input.value.trim();
+    if (!text) return;
+    appendUser(text);
+    appendLLM('...');
+    input.value = '';
+  }
+
+  function resetSession() {
+    terminal.innerHTML = '';
+    disableInput();
+    closeTopMenus();
+  }
+
+  /* ---------- load ---------- */
+  function openLoadModal() {
+    closeTopMenus();
+    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
+    selectedPrompt = null;
+    openModal('loadModal');
+  }
+
+  function selectPrompt(key, rowEl) {
+    selectedPrompt = key;
+    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
+    rowEl.classList.add('selected');
+  }
+
+  function loadSelectedPrompt() {
+    if (!selectedPrompt) return;
+    closeModal('loadModal');
+    const cfg = promptConfigs[selectedPrompt];
+    enableInput(cfg.chatRows || 1);
+    appendLLM(`${cfg.label} loaded.`);
+  }
+
+  function loadGooseSweeper() {
+    closeModal('gooseModal');
+    enableInput(promptConfigs.goose.chatRows || 1);
+    appendLLM('Goose Sweeper loaded.');
+  }
+
+  /* ---------- egg ---------- */
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function tapSound() {
+    ensureAudio();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = 700;
+    g.gain.value = 0.03;
+    o.connect(g).connect(audioCtx.destination);
+    o.start();
+    setTimeout(() => o.stop(), 25);
+  }
+
+  function whackSound() {
+    ensureAudio();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'triangle';
+    o.frequency.value = 120;
+    g.gain.value = 0.09;
+    o.connect(g).connect(audioCtx.destination);
+    o.start();
+    setTimeout(() => o.stop(), 120);
+  }
+
+  document.getElementById('egg').addEventListener('click', (e) => {
+    e.stopPropagation();
+    tapSound();
+    eggClicks += 1;
+
+    if (eggClicks === 99) {
+      whackSound();
+      gooseUnlocked = true;
+      openModal('gooseModal');
+    }
+  });
+
+  /* ---------- view ---------- */
+  function setFlavor(name) {
+    currentFlavor = name;
+    const f = flavorMap[name];
+    document.documentElement.style.setProperty('--bar', f.bar);
+    document.documentElement.style.setProperty('--bezel', f.bezel);
+    document.documentElement.style.setProperty('--screen', f.screen);
+    document.documentElement.style.setProperty('--bg', f.bg);
+    updateChecks();
+  }
+
+  function setPattern(name) {
+    currentPattern = name;
+    document.body.classList.remove(
+      'pattern-horizontal',
+      'pattern-vertical',
+      'pattern-diagonal',
+      'pattern-dots',
+      'pattern-chevron'
+    );
+    if (name !== 'none') {
+      document.body.classList.add(`pattern-${name}`);
+    }
+    updateChecks();
+  }
+
+  function setScreen(name) {
+    currentScreen = name;
+    const bezel = document.getElementById('bezel');
+    bezel.classList.remove('wide', 'ultra');
+    if (name === 'wide') bezel.classList.add('wide');
+    if (name === 'ultra') bezel.classList.add('ultra');
+    updateChecks();
+  }
+
+  function updateChecks() {
+    document.querySelectorAll('[data-flavor]').forEach(el => {
+      el.querySelector('.check').classList.toggle('visible', el.dataset.flavor === currentFlavor);
+    });
+    document.querySelectorAll('[data-pattern]').forEach(el => {
+      el.querySelector('.check').classList.toggle('visible', el.dataset.pattern === currentPattern);
+    });
+    document.querySelectorAll('[data-screen]').forEach(el => {
+      el.querySelector('.check').classList.toggle('visible', el.dataset.screen === currentScreen);
+    });
+  }
+
+  /* ---------- init ---------- */
+  disableInput();
+  setFlavor('vanilla');
+  setPattern('none');
+  setScreen('standard');
+  updateChecks();
+  openNoticeModal(false);
+</script>
 </body>
 </html>
