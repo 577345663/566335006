@@ -31,7 +31,6 @@
     overflow:hidden;
   }
 
-  /* Background patterns */
   body.pattern-horizontal{
     background-image: repeating-linear-gradient(
       0deg,
@@ -86,13 +85,8 @@
     border:2px solid var(--border);
   }
 
-  .bezel.wide{
-    width:1100px;
-  }
-
-  .bezel.ultra{
-    width:95vw;
-  }
+  .bezel.wide{ width:1100px; }
+  .bezel.ultra{ width:95vw; }
 
   .menu-bar{
     display:flex;
@@ -134,9 +128,7 @@
     appearance:none;
   }
 
-  #egg:focus{
-    outline:none;
-  }
+  #egg:focus{ outline:none; }
 
   .top-dropdown,
   .submenu{
@@ -183,9 +175,7 @@
     flex:0 0 auto;
   }
 
-  .check.visible{
-    opacity:1;
-  }
+  .check.visible{ opacity:1; }
 
   #terminal{
     flex:1;
@@ -336,6 +326,10 @@
   .muted{
     color:var(--muted);
   }
+
+  .loading-line{
+    margin:6px 0;
+  }
 </style>
 </head>
 <body>
@@ -349,7 +343,7 @@
            onmouseleave="queueCloseMenus()">
         <span class="menu-label">File</span>
         <div class="top-dropdown" id="fileMenu">
-          <div class="dropdown-row" onclick="openLoadModal()">Load</div>
+          <div class="dropdown-row" onclick="openLoadModal()">Load Promptware</div>
           <div class="dropdown-row" onclick="resetSession()">Reset</div>
         </div>
       </div>
@@ -411,7 +405,7 @@
       </div>
 
       <div class="system-label">566335006</div>
-      <button id="egg" title="🥚" aria-label="egg">🥚</button>
+      <button id="egg" aria-label="egg">🥚</button>
     </div>
 
     <div id="terminal"></div>
@@ -422,7 +416,6 @@
     </div>
   </div>
 
-  <!-- Notice / About -->
   <div class="modal" id="noticeModal">
     <div class="modal-card">
       <div class="modal-title">Promptware Terminal</div>
@@ -442,10 +435,9 @@
     </div>
   </div>
 
-  <!-- Load -->
   <div class="modal" id="loadModal">
     <div class="modal-card">
-      <div class="modal-title">Load Prompt</div>
+      <div class="modal-title">Load Promptware</div>
 
       <div class="file-list">
         <div class="file-head">
@@ -476,7 +468,6 @@
     </div>
   </div>
 
-  <!-- Hidden Goose Sweeper -->
   <div class="modal" id="gooseModal">
     <div class="modal-card">
       <div class="modal-title">Goose Sweeper</div>
@@ -490,8 +481,17 @@
     </div>
   </div>
 
+  <div class="modal" id="loadingModal">
+    <div class="modal-card">
+      <div class="modal-title">Loading Promptware</div>
+      <div class="modal-copy">
+        <div class="loading-line" id="loadingLine1">Preparing runtime…</div>
+        <div class="loading-line" id="loadingLine2"></div>
+      </div>
+    </div>
+  </div>
+
 <script>
-  /* ---------- state ---------- */
   let activeTopMenu = null;
   let topMenuCloseTimer = null;
 
@@ -519,10 +519,9 @@
     cocoa:   { bar:'#372312', bezel:'#56381f', screen:'#24170e', bg:'#140d08' },
     berry:   { bar:'#16273c', bezel:'#243c5a', screen:'#101b28', bg:'#09111a' },
     melon:   { bar:'#3b1923', bezel:'#5d2737', screen:'#271119', bg:'#17090d' },
-    citrus:  { bar:'#d88b1e', bezel:'#f0a330', screen:'#4a2f06', bg:'#9a5700' }
+    citrus:  { bar:'#d88b1e', bezel:'#f0a330', screen:'#5b3a08', bg:'#c96f00' }
   };
 
-  /* ---------- menu ---------- */
   function closeTopMenus() {
     document.querySelectorAll('.top-dropdown').forEach(el => el.style.display = 'none');
     activeTopMenu = null;
@@ -569,7 +568,6 @@
     }
   });
 
-  /* ---------- modals ---------- */
   function openModal(id) {
     document.getElementById(id).classList.add('open');
   }
@@ -592,7 +590,6 @@
     closeModal('noticeModal');
   }
 
-  /* ---------- terminal ---------- */
   const terminal = document.getElementById('terminal');
   const input = document.getElementById('input');
   const sendBtn = document.getElementById('sendBtn');
@@ -671,7 +668,6 @@
     closeTopMenus();
   }
 
-  /* ---------- load ---------- */
   function openLoadModal() {
     closeTopMenus();
     document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
@@ -685,21 +681,45 @@
     rowEl.classList.add('selected');
   }
 
+  function startLoadingSequence(done) {
+    closeModal('loadModal');
+    closeModal('gooseModal');
+    document.getElementById('loadingLine1').textContent = 'Preparing runtime…';
+    document.getElementById('loadingLine2').textContent = '';
+    openModal('loadingModal');
+
+    setTimeout(() => {
+      document.getElementById('loadingLine1').textContent = 'Loading Promptware…';
+      document.getElementById('loadingLine2').textContent = 'Injecting ruleset…';
+    }, 250);
+
+    setTimeout(() => {
+      document.getElementById('loadingLine1').textContent = 'Starting session…';
+      document.getElementById('loadingLine2').textContent = 'Almost ready.';
+    }, 650);
+
+    setTimeout(() => {
+      closeModal('loadingModal');
+      done();
+    }, 1050);
+  }
+
   function loadSelectedPrompt() {
     if (!selectedPrompt) return;
-    closeModal('loadModal');
     const cfg = promptConfigs[selectedPrompt];
-    enableInput(cfg.chatRows || 1);
-    appendLLM(`${cfg.label} loaded.`);
+    startLoadingSequence(() => {
+      enableInput(cfg.chatRows || 1);
+      appendLLM(`${cfg.label} loaded.`);
+    });
   }
 
   function loadGooseSweeper() {
-    closeModal('gooseModal');
-    enableInput(promptConfigs.goose.chatRows || 1);
-    appendLLM('Goose Sweeper loaded.');
+    startLoadingSequence(() => {
+      enableInput(promptConfigs.goose.chatRows || 1);
+      appendLLM('Goose Sweeper loaded.');
+    });
   }
 
-  /* ---------- egg ---------- */
   let audioCtx = null;
 
   function ensureAudio() {
@@ -747,7 +767,6 @@
     }
   });
 
-  /* ---------- view ---------- */
   function setFlavor(name) {
     currentFlavor = name;
     const f = flavorMap[name];
@@ -794,7 +813,6 @@
     });
   }
 
-  /* ---------- init ---------- */
   disableInput();
   setFlavor('vanilla');
   setPattern('none');
