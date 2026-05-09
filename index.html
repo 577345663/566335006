@@ -1,339 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Promptware Terminal</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  :root{
-    --bg:#000000;
-    --bar:#111111;
-    --bezel:#1a1a1a;
-    --screen:#000000;
-    --text:#ffffff;
-    --border:#333333;
-    --muted:#b9b9b9;
-    --hover:#222222;
-    --row-h: 44px;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promptware Terminal</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bar: #111111;
+      --bezel: #1a1a1a;
+      --screen: #000000;
+      --text: #ffffff;
+      --muted: #b7b7b7;
+      --border: #333333;
+      --hover: #222222;
+      --row-h: 44px;
+      --progress: 0%;
+    }
 
-  *{box-sizing:border-box}
+    * { box-sizing: border-box; }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    background:var(--bg);
-    color:var(--text);
-    font-family:"Segoe UI","Apple Color Emoji","Segoe UI Emoji",system-ui,sans-serif;
-    overflow:hidden;
-  }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif;
+      overflow: hidden;
+    }
 
-  body.pattern-horizontal{
-    background-image: repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,.05) 0px,
-      rgba(255,255,255,.05) 1px,
-      transparent 1px,
-      transparent 8px
-    );
-  }
+    body.pattern-horizontal {
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 1px,
+        transparent 1px,
+        transparent 8px
+      );
+    }
 
-  body.pattern-vertical{
-    background-image: repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,.05) 0px,
-      rgba(255,255,255,.05) 1px,
-      transparent 1px,
-      transparent 8px
-    );
-  }
+    body.pattern-vertical {
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 1px,
+        transparent 1px,
+        transparent 8px
+      );
+    }
 
-  body.pattern-diagonal{
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,.05) 0px,
-      rgba(255,255,255,.05) 1px,
-      transparent 1px,
-      transparent 10px
-    );
-  }
+    body.pattern-diagonal {
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 1px,
+        transparent 1px,
+        transparent 10px
+      );
+    }
 
-  body.pattern-dots{
-    background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
-    background-size: 14px 14px;
-  }
+    body.pattern-dots {
+      background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 14px 14px;
+    }
 
-  body.pattern-chevron{
-    background-image:
-      linear-gradient(135deg, rgba(255,255,255,.04) 25%, transparent 25%),
-      linear-gradient(225deg, rgba(255,255,255,.04) 25%, transparent 25%);
-    background-size: 18px 18px;
-    background-position: 0 0, 9px 9px;
-  }
+    body.pattern-chevron {
+      background-image:
+        linear-gradient(135deg, rgba(255,255,255,.04) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255,255,255,.04) 25%, transparent 25%);
+      background-size: 18px 18px;
+      background-position: 0 0, 9px 9px;
+    }
 
-  .bezel{
-    width:900px;
-    max-width:95vw;
-    height:85vh;
-    margin-top:2vh;
-    display:flex;
-    flex-direction:column;
-    background:var(--bezel);
-    border:2px solid var(--border);
-  }
+    .bezel {
+      width: 900px;
+      max-width: 95vw;
+      height: 85vh;
+      margin-top: 2vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bezel);
+      border: 2px solid var(--border);
+    }
 
-  .bezel.wide{ width:1100px; }
-  .bezel.ultra{ width:95vw; }
+    .bezel.wide { width: 1100px; }
+    .bezel.ultra { width: 95vw; }
 
-  .menu-bar{
-    display:flex;
-    align-items:center;
-    gap:20px;
-    padding:6px 10px;
-    background:var(--bar);
-    border-bottom:1px solid var(--border);
-    user-select:none;
-  }
+    .menu-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 6px 10px;
+      background: var(--bar);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
+    }
 
-  .menu-item{
-    position:relative;
-    cursor:pointer;
-    padding:2px 0;
-  }
+    .menu-item {
+      position: relative;
+      cursor: pointer;
+      padding: 2px 0;
+    }
 
-  .menu-label{
-    display:block;
-  }
+    .menu-label { display: block; }
 
-  .system-label{
-    margin-left:auto;
-    font-weight:700;
-    user-select:none;
-  }
+    .system-label {
+      margin-left: auto;
+      font-weight: 700;
+      user-select: none;
+    }
 
-  #egg{
-    margin-left:2px;
-    padding:0;
-    border:none;
-    background:transparent;
-    color:var(--text);
-    font:inherit;
-    line-height:1;
-    cursor:pointer;
-    user-select:none;
-    -webkit-user-select:none;
-    appearance:none;
-  }
+    #egg {
+      margin-left: 2px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      appearance: none;
+    }
 
-  #egg:focus{ outline:none; }
+    #egg:focus { outline: none; }
 
-  .top-dropdown,
-  .submenu{
-    position:absolute;
-    min-width:190px;
-    display:none;
-    flex-direction:column;
-    background:var(--screen);
-    border:1px solid var(--border);
-    z-index:100;
-  }
+    .top-dropdown,
+    .submenu {
+      position: absolute;
+      min-width: 190px;
+      display: none;
+      flex-direction: column;
+      background: var(--screen);
+      border: 1px solid var(--border);
+      z-index: 100;
+    }
 
-  .top-dropdown{
-    top:24px;
-    left:0;
-  }
+    .top-dropdown {
+      top: 24px;
+      left: 0;
+    }
 
-  .submenu{
-    top:-1px;
-    left:100%;
-  }
+    .submenu {
+      top: -1px;
+      left: 100%;
+    }
 
-  .dropdown-row{
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:8px 10px;
-    white-space:nowrap;
-  }
+    .dropdown-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
 
-  .dropdown-row:hover{
-    background:var(--hover);
-  }
+    .dropdown-row:hover { background: var(--hover); }
+    .dropdown-row.branch:hover > .submenu { display: flex; }
 
-  .dropdown-row.branch:hover > .submenu{
-    display:flex;
-  }
+    .check {
+      opacity: 0;
+      margin-left: 14px;
+      flex: 0 0 auto;
+    }
 
-  .check{
-    opacity:0;
-    margin-left:14px;
-    flex:0 0 auto;
-  }
+    .check.visible { opacity: 1; }
 
-  .check.visible{ opacity:1; }
+    #terminal {
+      flex: 1;
+      background: var(--screen);
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-  #terminal{
-    flex:1;
-    background:var(--screen);
-    padding:16px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
+    .msg {
+      max-width: 86%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
 
-  .msg{
-    max-width:86%;
-    padding:8px 10px;
-    border:1px solid var(--border);
-    background:rgba(255,255,255,.02);
-    white-space:pre-wrap;
-    word-wrap:break-word;
-  }
+    .msg.user {
+      align-self: flex-end;
+      text-align: left;
+    }
 
-  .msg.user{
-    align-self:flex-end;
-    text-align:left;
-  }
+    .msg.llm {
+      align-self: flex-start;
+    }
 
-  .msg.llm{
-    align-self:flex-start;
-  }
+    .input-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      background: var(--screen);
+      border-top: 1px solid var(--border);
+    }
 
-  .input-bar{
-    display:flex;
-    gap:8px;
-    padding:10px;
-    background:var(--screen);
-    border-top:1px solid var(--border);
-  }
+    textarea {
+      flex: 1;
+      min-height: var(--row-h);
+      max-height: var(--row-h);
+      resize: none;
+      overflow-y: auto;
+      padding: 10px;
+      color: var(--text);
+      background: #111111;
+      border: 1px solid var(--border);
+      font: inherit;
+    }
 
-  textarea{
-    flex:1;
-    min-height:var(--row-h);
-    max-height:var(--row-h);
-    resize:none;
-    overflow-y:auto;
-    padding:10px;
-    color:var(--text);
-    background:#111111;
-    border:1px solid var(--border);
-    font:inherit;
-  }
+    textarea:disabled { color: var(--muted); }
 
-  textarea:disabled{
-    color:var(--muted);
-  }
+    .send-btn {
+      width: 84px;
+      border: 1px solid var(--border);
+      background: #efefef;
+      color: #000;
+      font: inherit;
+      cursor: pointer;
+    }
 
-  .send-btn{
-    width:84px;
-    border:1px solid var(--border);
-    background:#efefef;
-    color:#000;
-    font:inherit;
-    cursor:pointer;
-  }
+    .send-btn:disabled {
+      cursor: default;
+      opacity: .65;
+    }
 
-  .send-btn:disabled{
-    cursor:default;
-    opacity:.65;
-  }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.75);
+      z-index: 500;
+    }
 
-  .modal{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.75);
-    z-index:500;
-  }
+    .modal.open { display: flex; }
 
-  .modal.open{
-    display:flex;
-  }
+    .modal-card {
+      width: 420px;
+      max-width: 90vw;
+      background: var(--screen);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 16px;
+    }
 
-  .modal-card{
-    width:420px;
-    max-width:90vw;
-    background:var(--screen);
-    color:var(--text);
-    border:1px solid var(--border);
-    padding:16px;
-  }
+    .modal-title {
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
 
-  .modal-title{
-    font-weight:700;
-    margin-bottom:12px;
-  }
+    .modal-copy {
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
 
-  .modal-copy{
-    color:var(--muted);
-    line-height:1.45;
-    margin-bottom:12px;
-  }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
 
-  .modal-actions{
-    display:flex;
-    gap:8px;
-    justify-content:flex-end;
-    margin-top:12px;
-  }
+    .modal-btn {
+      min-width: 110px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: #efefef;
+      color: #000;
+      font: inherit;
+      cursor: pointer;
+    }
 
-  .modal-btn{
-    min-width:110px;
-    padding:8px 12px;
-    border:1px solid var(--border);
-    background:#efefef;
-    color:#000;
-    font:inherit;
-    cursor:pointer;
-  }
+    .file-list {
+      border: 1px solid var(--border);
+      margin-top: 8px;
+    }
 
-  .file-list{
-    border:1px solid var(--border);
-    margin-top:8px;
-  }
+    .file-head,
+    .file-row {
+      display: grid;
+      grid-template-columns: 1fr 84px;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+    }
 
-  .file-head,
-  .file-row{
-    display:grid;
-    grid-template-columns: 1fr 84px;
-    gap:10px;
-    align-items:center;
-    padding:8px 10px;
-  }
+    .file-head {
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
 
-  .file-head{
-    color:var(--muted);
-    border-bottom:1px solid var(--border);
-  }
+    .file-row { cursor: pointer; }
 
-  .file-row{
-    cursor:pointer;
-  }
+    .file-row:hover,
+    .file-row.selected { background: var(--hover); }
 
-  .file-row:hover,
-  .file-row.selected{
-    background:var(--hover);
-  }
+    .muted { color: var(--muted); }
 
-  .muted{
-    color:var(--muted);
-  }
+    .progress-shell {
+      width: 100%;
+      height: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      margin-top: 10px;
+      overflow: hidden;
+    }
 
-  .loading-line{
-    margin:6px 0;
-  }
-</style>
+    .progress-fill {
+      height: 100%;
+      width: var(--progress);
+      background: #ffffff;
+      transition: width .15s linear;
+    }
+  </style>
 </head>
 <body>
-
   <div class="bezel" id="bezel">
     <div class="menu-bar">
       <div class="menu-item"
@@ -343,7 +339,8 @@
            onmouseleave="queueCloseMenus()">
         <span class="menu-label">File</span>
         <div class="top-dropdown" id="fileMenu">
-          <div class="dropdown-row" onclick="openLoadModal()">Load Promptware</div>
+          <div class="dropdown-row" onclick="openLoadModal()">Load</div>
+          <div class="dropdown-row" id="saveAsRow" style="display:none;" onclick="saveCurrentPrompt()">Save As</div>
           <div class="dropdown-row" onclick="resetSession()">Reset</div>
         </div>
       </div>
@@ -400,7 +397,8 @@
            onmouseleave="queueCloseMenus()">
         <span class="menu-label">Help</span>
         <div class="top-dropdown" id="helpMenu">
-          <div class="dropdown-row" onclick="openNoticeModal(true)">About</div>
+          <div class="dropdown-row" onclick="openAboutModal()">About</div>
+          <div class="dropdown-row" onclick="openInfoModal()">Info</div>
         </div>
       </div>
 
@@ -416,21 +414,47 @@
     </div>
   </div>
 
-  <div class="modal" id="noticeModal">
+  <div class="modal" id="initModal">
     <div class="modal-card">
-      <div class="modal-title">Promptware Terminal</div>
-      <div class="modal-copy">
-        This console runs AI-powered games and tools.<br><br>
-        • Do not enter personal or sensitive information<br>
-        • Outputs may vary<br>
-        • Use it to play, experiment, and have fun
+      <div class="modal-title" id="initTitle">Promptware Terminal</div>
+      <div class="modal-copy" id="initCopy">This console runs AI-powered games and tools.
+
+• Do not enter personal or sensitive information
+• Outputs may vary
+• Use it to play, experiment, and have fun</div>
+      <div class="progress-shell" id="initProgressShell" style="display:none;">
+        <div class="progress-fill" id="initProgressFill"></div>
       </div>
-      <label class="muted">
-        <input type="checkbox" id="dontShowAgain">
-        Don’t show again
-      </label>
       <div class="modal-actions">
-        <button class="modal-btn" onclick="closeNoticeModal()">Continue</button>
+        <button class="modal-btn" id="initButton" onclick="startInitialize()">Initialize</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="aboutModal">
+    <div class="modal-card">
+      <div class="modal-title">About</div>
+      <div class="modal-copy">Promptware Terminal
+
+566335006
+
+Built as a browser-based Promptware console.</div>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeModal('aboutModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="infoModal">
+    <div class="modal-card">
+      <div class="modal-title">Info</div>
+      <div class="modal-copy">Load a Promptware from the File menu to begin.
+
+Use the terminal input for short commands and responses.
+
+The View menu controls flavors, patterns, and screen size.</div>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeModal('infoModal')">Close</button>
       </div>
     </div>
   </div>
@@ -471,9 +495,7 @@
   <div class="modal" id="gooseModal">
     <div class="modal-card">
       <div class="modal-title">Goose Sweeper</div>
-      <div class="modal-copy">
-        Hidden Promptware unlocked.
-      </div>
+      <div class="modal-copy">Hidden Promptware unlocked.</div>
       <div class="modal-actions">
         <button class="modal-btn" onclick="closeModal('gooseModal')">Close</button>
         <button class="modal-btn" onclick="loadGooseSweeper()">Load Goose Sweeper</button>
@@ -484,9 +506,9 @@
   <div class="modal" id="loadingModal">
     <div class="modal-card">
       <div class="modal-title">Loading Promptware</div>
-      <div class="modal-copy">
-        <div class="loading-line" id="loadingLine1">Preparing runtime…</div>
-        <div class="loading-line" id="loadingLine2"></div>
+      <div class="modal-copy" id="loadingCopy">Loading…</div>
+      <div class="progress-shell">
+        <div class="progress-fill" id="loadingProgressFill"></div>
       </div>
     </div>
   </div>
@@ -503,322 +525,4 @@
   const maxCharsPerLine = 90;
 
   let selectedPrompt = null;
-  let gooseUnlocked = false;
-  let eggClicks = 0;
-
-  const promptConfigs = {
-    llm:   { label: 'Long Lost Mines',     chatRows: 1 },
-    lunar: { label: 'Lonely Lunar Module', chatRows: 1 },
-    motors:{ label: 'Last Lap Motors',     chatRows: 1 },
-    goose: { label: 'Goose Sweeper',       chatRows: 1 }
-  };
-
-  const flavorMap = {
-    vanilla: { bar:'#111111', bezel:'#1a1a1a', screen:'#000000', bg:'#000000' },
-    mint:    { bar:'#103225', bezel:'#1b4d39', screen:'#10241c', bg:'#08150f' },
-    cocoa:   { bar:'#372312', bezel:'#56381f', screen:'#24170e', bg:'#140d08' },
-    berry:   { bar:'#16273c', bezel:'#243c5a', screen:'#101b28', bg:'#09111a' },
-    melon:   { bar:'#3b1923', bezel:'#5d2737', screen:'#271119', bg:'#17090d' },
-    citrus:  { bar:'#d88b1e', bezel:'#f0a330', screen:'#5b3a08', bg:'#c96f00' }
-  };
-
-  function closeTopMenus() {
-    document.querySelectorAll('.top-dropdown').forEach(el => el.style.display = 'none');
-    activeTopMenu = null;
-  }
-
-  function queueCloseMenus() {
-    clearTimeout(topMenuCloseTimer);
-    topMenuCloseTimer = setTimeout(() => closeTopMenus(), 120);
-  }
-
-  function cancelCloseMenus() {
-    clearTimeout(topMenuCloseTimer);
-  }
-
-  function openTopMenu(id) {
-    closeTopMenus();
-    const el = document.getElementById(id);
-    if (el) {
-      el.style.display = 'flex';
-      activeTopMenu = id;
-    }
-  }
-
-  function toggleTopMenu(event, id) {
-    event.stopPropagation();
-    cancelCloseMenus();
-    if (activeTopMenu === id) {
-      closeTopMenus();
-    } else {
-      openTopMenu(id);
-    }
-  }
-
-  function hoverTopMenu(id) {
-    cancelCloseMenus();
-    if (activeTopMenu && activeTopMenu !== id) {
-      openTopMenu(id);
-    }
-  }
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.menu-bar')) {
-      closeTopMenus();
-    }
-  });
-
-  function openModal(id) {
-    document.getElementById(id).classList.add('open');
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-  }
-
-  function openNoticeModal(force = false) {
-    if (!force && localStorage.getItem('pw_seen_notice') === '1') return;
-    document.getElementById('dontShowAgain').checked = localStorage.getItem('pw_seen_notice') === '1';
-    openModal('noticeModal');
-    closeTopMenus();
-  }
-
-  function closeNoticeModal() {
-    if (document.getElementById('dontShowAgain').checked) {
-      localStorage.setItem('pw_seen_notice', '1');
-    }
-    closeModal('noticeModal');
-  }
-
-  const terminal = document.getElementById('terminal');
-  const input = document.getElementById('input');
-  const sendBtn = document.getElementById('sendBtn');
-
-  function appendUser(text) {
-    const div = document.createElement('div');
-    div.className = 'msg user';
-    div.textContent = text;
-    terminal.appendChild(div);
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
-  function appendLLM(text) {
-    const div = document.createElement('div');
-    div.className = 'msg llm';
-    div.textContent = text;
-    terminal.appendChild(div);
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
-  function setChatRows(rows) {
-    chatRows = Math.max(1, Math.min(5, rows));
-    input.rows = chatRows;
-    input.maxLength = chatRows * maxCharsPerLine;
-    const lineHeight = 24;
-    const padding = 20;
-    const height = (chatRows * lineHeight) + padding;
-    document.documentElement.style.setProperty('--row-h', `${height}px`);
-    input.style.height = `${height}px`;
-    input.style.minHeight = `${height}px`;
-    input.style.maxHeight = `${height}px`;
-  }
-
-  input.addEventListener('input', () => {
-    const max = chatRows * maxCharsPerLine;
-    if (input.value.length > max) {
-      input.value = input.value.slice(0, max);
-    }
-  });
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendInput();
-    }
-  });
-
-  function enableInput(rows = 1) {
-    setChatRows(rows);
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.placeholder = 'Type to interact…';
-    input.focus();
-  }
-
-  function disableInput() {
-    setChatRows(1);
-    input.disabled = true;
-    sendBtn.disabled = true;
-    input.placeholder = 'Load a prompt to begin…';
-    input.value = '';
-  }
-
-  function sendInput() {
-    if (input.disabled) return;
-    const text = input.value.trim();
-    if (!text) return;
-    appendUser(text);
-    appendLLM('...');
-    input.value = '';
-  }
-
-  function resetSession() {
-    terminal.innerHTML = '';
-    disableInput();
-    closeTopMenus();
-  }
-
-  function openLoadModal() {
-    closeTopMenus();
-    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
-    selectedPrompt = null;
-    openModal('loadModal');
-  }
-
-  function selectPrompt(key, rowEl) {
-    selectedPrompt = key;
-    document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
-    rowEl.classList.add('selected');
-  }
-
-  function startLoadingSequence(done) {
-    closeModal('loadModal');
-    closeModal('gooseModal');
-    document.getElementById('loadingLine1').textContent = 'Preparing runtime…';
-    document.getElementById('loadingLine2').textContent = '';
-    openModal('loadingModal');
-
-    setTimeout(() => {
-      document.getElementById('loadingLine1').textContent = 'Loading Promptware…';
-      document.getElementById('loadingLine2').textContent = 'Injecting ruleset…';
-    }, 250);
-
-    setTimeout(() => {
-      document.getElementById('loadingLine1').textContent = 'Starting session…';
-      document.getElementById('loadingLine2').textContent = 'Almost ready.';
-    }, 650);
-
-    setTimeout(() => {
-      closeModal('loadingModal');
-      done();
-    }, 1050);
-  }
-
-  function loadSelectedPrompt() {
-    if (!selectedPrompt) return;
-    const cfg = promptConfigs[selectedPrompt];
-    startLoadingSequence(() => {
-      enableInput(cfg.chatRows || 1);
-      appendLLM(`${cfg.label} loaded.`);
-    });
-  }
-
-  function loadGooseSweeper() {
-    startLoadingSequence(() => {
-      enableInput(promptConfigs.goose.chatRows || 1);
-      appendLLM('Goose Sweeper loaded.');
-    });
-  }
-
-  let audioCtx = null;
-
-  function ensureAudio() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
-
-  function tapSound() {
-    ensureAudio();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = 'square';
-    o.frequency.value = 700;
-    g.gain.value = 0.03;
-    o.connect(g).connect(audioCtx.destination);
-    o.start();
-    setTimeout(() => o.stop(), 25);
-  }
-
-  function whackSound() {
-    ensureAudio();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = 'triangle';
-    o.frequency.value = 120;
-    g.gain.value = 0.09;
-    o.connect(g).connect(audioCtx.destination);
-    o.start();
-    setTimeout(() => o.stop(), 120);
-  }
-
-  document.getElementById('egg').addEventListener('click', (e) => {
-    e.stopPropagation();
-    tapSound();
-    eggClicks += 1;
-
-    if (eggClicks === 99) {
-      whackSound();
-      gooseUnlocked = true;
-      openModal('gooseModal');
-    }
-  });
-
-  function setFlavor(name) {
-    currentFlavor = name;
-    const f = flavorMap[name];
-    document.documentElement.style.setProperty('--bar', f.bar);
-    document.documentElement.style.setProperty('--bezel', f.bezel);
-    document.documentElement.style.setProperty('--screen', f.screen);
-    document.documentElement.style.setProperty('--bg', f.bg);
-    updateChecks();
-  }
-
-  function setPattern(name) {
-    currentPattern = name;
-    document.body.classList.remove(
-      'pattern-horizontal',
-      'pattern-vertical',
-      'pattern-diagonal',
-      'pattern-dots',
-      'pattern-chevron'
-    );
-    if (name !== 'none') {
-      document.body.classList.add(`pattern-${name}`);
-    }
-    updateChecks();
-  }
-
-  function setScreen(name) {
-    currentScreen = name;
-    const bezel = document.getElementById('bezel');
-    bezel.classList.remove('wide', 'ultra');
-    if (name === 'wide') bezel.classList.add('wide');
-    if (name === 'ultra') bezel.classList.add('ultra');
-    updateChecks();
-  }
-
-  function updateChecks() {
-    document.querySelectorAll('[data-flavor]').forEach(el => {
-      el.querySelector('.check').classList.toggle('visible', el.dataset.flavor === currentFlavor);
-    });
-    document.querySelectorAll('[data-pattern]').forEach(el => {
-      el.querySelector('.check').classList.toggle('visible', el.dataset.pattern === currentPattern);
-    });
-    document.querySelectorAll('[data-screen]').forEach(el => {
-      el.querySelector('.check').classList.toggle('visible', el.dataset.screen === currentScreen);
-    });
-  }
-
-  disableInput();
-  setFlavor('vanilla');
-  setPattern('none');
-  setScreen('standard');
-  updateChecks();
-  openNoticeModal(false);
-</script>
-</body>
-</html>
+  let currentPromptKey = nu
