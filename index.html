@@ -455,6 +455,10 @@ The View menu controls flavors, patterns, and screen size.</div>
           <div>Last Lap Motors</div>
           <div>6.2k</div>
         </div>
+        <div class="file-row" id="gooseLibraryRow" data-prompt="goose" onclick="selectPrompt('goose', this)" style="display:none;">
+          <div>GooseSweeper</div>
+          <div>1.2k</div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn" onclick="closeModal('loadModal')">Close</button>
@@ -466,10 +470,9 @@ The View menu controls flavors, patterns, and screen size.</div>
   <div class="modal" id="gooseModal">
     <div class="modal-card">
       <div class="modal-title">Goose Sweeper</div>
-      <div class="modal-copy">Hidden Promptware unlocked.</div>
+      <div class="modal-copy">Goose Sweeper added to your library.</div>
       <div class="modal-actions">
-        <button class="modal-btn" onclick="closeModal('gooseModal')">Close</button>
-        <button class="modal-btn" onclick="loadGooseSweeper()">Load Goose Sweeper</button>
+        <button class="modal-btn" onclick="honkAndCloseGooseModal()">Honk</button>
       </div>
     </div>
   </div>
@@ -553,6 +556,7 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('sendBtn');
     const saveAsRow = document.getElementById('saveAsRow');
+    const gooseLibraryRow = document.getElementById('gooseLibraryRow');
 
     function closeTopMenus() {
       document.querySelectorAll('.top-dropdown').forEach(el => el.style.display = 'none');
@@ -802,6 +806,12 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
       closeTopMenus();
     }
 
+    const SOUND_CODES = {
+      eggTap: 'TICK-10 V9:L103:G105:F9',
+      honk: 'BUZZ-01 V11:L700:G105:F100',
+      flag: 'FUZZ-05 V11:L106:G105:F19'
+    };
+
     let audioCtx = null;
 
     function ensureAudio() {
@@ -813,28 +823,79 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
       }
     }
 
-    function playTone({freq = 700, gain = 0.03, duration = 25, type = 'square'}) {
+    function parseSoundCode(code) {
+      const bits = code.split(' ');
+      const nameBits = bits[0].split('-');
+      const params = { family: nameBits[0], variant: Number(nameBits[1] || 0) };
+      if (bits[1]) {
+        bits[1].split(':').forEach(part => {
+          const key = part.charAt(0).toLowerCase();
+          params[key] = Number(part.slice(1));
+        });
+      }
+      return params;
+    }
+
+    function playSoundCode(code) {
       ensureAudio();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type;
-      o.frequency.value = freq;
-      g.gain.value = gain;
-      o.connect(g).connect(audioCtx.destination);
-      o.start();
-      setTimeout(() => o.stop(), duration);
+      const spec = parseSoundCode(code);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+      const now = audioCtx.currentTime;
+      const duration = Math.max(0.03, (spec.l || 80) / 1000);
+      const baseGain = Math.min(0.16, Math.max(0.01, (spec.v || 10) / 180));
+
+      if (spec.family === 'TICK') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(260 + ((spec.f || 10) * 34) + (spec.variant * 10), now);
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(900 + ((spec.g || 100) * 3), now);
+        gain.gain.setValueAtTime(baseGain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      } else if (spec.family === 'BUZZ') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(55 + ((spec.f || 50) * 2.2) + (spec.variant * 3), now);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(500 + ((spec.g || 100) * 4), now);
+        gain.gain.setValueAtTime(Math.min(0.18, baseGain * 1.2), now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      } else if (spec.family === 'FUZZ') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180 + ((spec.f || 20) * 11) + (spec.variant * 7), now);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200 + ((spec.g || 100) * 5), now);
+        gain.gain.setValueAtTime(baseGain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      } else {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220 + (spec.f || 20), now);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now);
+        gain.gain.setValueAtTime(baseGain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      }
+
+      osc.connect(filter).connect(gain).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
     }
 
     function eggTapSound() {
-      playTone({ freq: 700, gain: 0.03, duration: 28, type: 'square' });
+      playSoundCode(SOUND_CODES.eggTap);
     }
 
     function honkSound() {
-      playTone({ freq: 120, gain: 0.09, duration: 120, type: 'triangle' });
+      playSoundCode(SOUND_CODES.honk);
     }
 
     function flagSound() {
-      playTone({ freq: 340, gain: 0.045, duration: 90, type: 'sawtooth' });
+      playSoundCode(SOUND_CODES.flag);
+    }
+
+    function honkAndCloseGooseModal() {
+      honkSound();
+      closeModal('gooseModal');
     }
 
     document.getElementById('egg').addEventListener('click', (e) => {
@@ -842,7 +903,7 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
       eggTapSound();
       eggClicks += 1;
       if (eggClicks === 99) {
-        honkSound();
+        gooseLibraryRow.style.display = 'grid';
         openModal('gooseModal');
       }
     });
