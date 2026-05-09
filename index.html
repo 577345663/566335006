@@ -33,33 +33,15 @@
     }
 
     body.pattern-horizontal {
-      background-image: repeating-linear-gradient(
-        0deg,
-        rgba(255,255,255,.05) 0px,
-        rgba(255,255,255,.05) 1px,
-        transparent 1px,
-        transparent 8px
-      );
+      background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 8px);
     }
 
     body.pattern-vertical {
-      background-image: repeating-linear-gradient(
-        90deg,
-        rgba(255,255,255,.05) 0px,
-        rgba(255,255,255,.05) 1px,
-        transparent 1px,
-        transparent 8px
-      );
+      background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 8px);
     }
 
     body.pattern-diagonal {
-      background-image: repeating-linear-gradient(
-        45deg,
-        rgba(255,255,255,.05) 0px,
-        rgba(255,255,255,.05) 1px,
-        transparent 1px,
-        transparent 10px
-      );
+      background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 10px);
     }
 
     body.pattern-dots {
@@ -123,8 +105,8 @@
       line-height: 1;
       cursor: pointer;
       user-select: none;
-      -webkit-user-select: none;
       appearance: none;
+      -webkit-user-select: none;
     }
 
     #egg:focus { outline: none; }
@@ -306,11 +288,8 @@
     }
 
     .file-row { cursor: pointer; }
-
     .file-row:hover,
     .file-row.selected { background: var(--hover); }
-
-    .muted { color: var(--muted); }
 
     .progress-shell {
       width: 100%;
@@ -333,7 +312,6 @@
   <div class="bezel" id="bezel">
     <div class="menu-bar">
       <div class="menu-item"
-           data-top-menu="fileMenu"
            onclick="toggleTopMenu(event, 'fileMenu')"
            onmouseenter="hoverTopMenu('fileMenu')"
            onmouseleave="queueCloseMenus()">
@@ -346,7 +324,6 @@
       </div>
 
       <div class="menu-item"
-           data-top-menu="viewMenu"
            onclick="toggleTopMenu(event, 'viewMenu')"
            onmouseenter="hoverTopMenu('viewMenu')"
            onmouseleave="queueCloseMenus()">
@@ -391,7 +368,6 @@
       </div>
 
       <div class="menu-item"
-           data-top-menu="helpMenu"
            onclick="toggleTopMenu(event, 'helpMenu')"
            onmouseenter="hoverTopMenu('helpMenu')"
            onmouseleave="queueCloseMenus()">
@@ -462,29 +438,24 @@ The View menu controls flavors, patterns, and screen size.</div>
   <div class="modal" id="loadModal">
     <div class="modal-card">
       <div class="modal-title">Load Promptware</div>
-
       <div class="file-list">
         <div class="file-head">
           <div>Name</div>
           <div>Size</div>
         </div>
-
         <div class="file-row" data-prompt="llm" onclick="selectPrompt('llm', this)">
           <div>Long Lost Mines</div>
           <div>12.4k</div>
         </div>
-
         <div class="file-row" data-prompt="lunar" onclick="selectPrompt('lunar', this)">
           <div>Lonely Lunar Module</div>
           <div>18.9k</div>
         </div>
-
         <div class="file-row" data-prompt="motors" onclick="selectPrompt('motors', this)">
           <div>Last Lap Motors</div>
           <div>6.2k</div>
         </div>
       </div>
-
       <div class="modal-actions">
         <button class="modal-btn" onclick="closeModal('loadModal')">Close</button>
         <button class="modal-btn" onclick="loadSelectedPrompt()">Load</button>
@@ -513,16 +484,447 @@ The View menu controls flavors, patterns, and screen size.</div>
     </div>
   </div>
 
-<script>
-  let activeTopMenu = null;
-  let topMenuCloseTimer = null;
+  <script>
+    let activeTopMenu = null;
+    let topMenuCloseTimer = null;
 
-  let currentFlavor = 'vanilla';
-  let currentPattern = 'none';
-  let currentScreen = 'standard';
+    let currentFlavor = 'vanilla';
+    let currentPattern = 'none';
+    let currentScreen = 'standard';
 
-  let chatRows = 1;
-  const maxCharsPerLine = 90;
+    let chatRows = 1;
+    const maxCharsPerLine = 90;
 
-  let selectedPrompt = null;
-  let currentPromptKey = nu
+    let selectedPrompt = null;
+    let currentPromptKey = null;
+    let eggClicks = 0;
+
+    const promptConfigs = {
+      llm: {
+        label: 'Long Lost Mines',
+        fileName: 'long-lost-mines.txt',
+        chatRows: 1,
+        text: `=== LONG LOST MINES ===
+Promptware for LLM play
+
+[Replace this placeholder with the full Long Lost Mines prompt.]`
+      },
+      lunar: {
+        label: 'Lonely Lunar Module',
+        fileName: 'lonely-lunar-module.txt',
+        chatRows: 1,
+        text: `=== LONELY LUNAR MODULE ===
+Promptware for LLM play
+
+[Replace this placeholder with the full Lonely Lunar Module prompt.]`
+      },
+      motors: {
+        label: 'Last Lap Motors',
+        fileName: 'last-lap-motors.txt',
+        chatRows: 1,
+        text: `=== LAST LAP MOTORS ===
+Promptware for LLM play
+
+[Replace this placeholder with the full Last Lap Motors prompt.]`
+      },
+      goose: {
+        label: 'Goose Sweeper',
+        fileName: 'goose-sweeper.txt',
+        chatRows: 1,
+        text: `=== GOOSE SWEEPER ===
+Promptware for LLM play
+
+Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3.
+
+[Replace this placeholder with the final Goose Sweeper prompt.]`
+      }
+    };
+
+    const flavorMap = {
+      vanilla: { bar:'#111111', bezel:'#1a1a1a', screen:'#000000', bg:'#000000' },
+      mint:    { bar:'#103225', bezel:'#1b4d39', screen:'#10241c', bg:'#08150f' },
+      cocoa:   { bar:'#372312', bezel:'#56381f', screen:'#24170e', bg:'#140d08' },
+      berry:   { bar:'#16273c', bezel:'#243c5a', screen:'#101b28', bg:'#09111a' },
+      melon:   { bar:'#3b1923', bezel:'#5d2737', screen:'#271119', bg:'#17090d' },
+      citrus:  { bar:'#d88b1e', bezel:'#f0a330', screen:'#5b3a08', bg:'#c96f00' }
+    };
+
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const saveAsRow = document.getElementById('saveAsRow');
+
+    function closeTopMenus() {
+      document.querySelectorAll('.top-dropdown').forEach(el => el.style.display = 'none');
+      activeTopMenu = null;
+    }
+
+    function queueCloseMenus() {
+      clearTimeout(topMenuCloseTimer);
+      topMenuCloseTimer = setTimeout(() => closeTopMenus(), 120);
+    }
+
+    function cancelCloseMenus() {
+      clearTimeout(topMenuCloseTimer);
+    }
+
+    function openTopMenu(id) {
+      closeTopMenus();
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = 'flex';
+        activeTopMenu = id;
+      }
+    }
+
+    function toggleTopMenu(event, id) {
+      event.stopPropagation();
+      cancelCloseMenus();
+      if (activeTopMenu === id) {
+        closeTopMenus();
+      } else {
+        openTopMenu(id);
+      }
+    }
+
+    function hoverTopMenu(id) {
+      cancelCloseMenus();
+      if (activeTopMenu && activeTopMenu !== id) {
+        openTopMenu(id);
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.menu-bar')) {
+        closeTopMenus();
+      }
+    });
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function openAboutModal() {
+      closeTopMenus();
+      openModal('aboutModal');
+    }
+
+    function openInfoModal() {
+      closeTopMenus();
+      openModal('infoModal');
+    }
+
+    function appendUser(text) {
+      const div = document.createElement('div');
+      div.className = 'msg user';
+      div.textContent = text;
+      terminal.appendChild(div);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function appendLLM(text) {
+      const div = document.createElement('div');
+      div.className = 'msg llm';
+      div.textContent = text;
+      terminal.appendChild(div);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function setChatRows(rows) {
+      chatRows = Math.max(1, Math.min(5, rows));
+      input.rows = chatRows;
+      input.maxLength = chatRows * maxCharsPerLine;
+      const lineHeight = 24;
+      const padding = 20;
+      const height = (chatRows * lineHeight) + padding;
+      document.documentElement.style.setProperty('--row-h', `${height}px`);
+      input.style.height = `${height}px`;
+      input.style.minHeight = `${height}px`;
+      input.style.maxHeight = `${height}px`;
+    }
+
+    input.addEventListener('input', () => {
+      const max = chatRows * maxCharsPerLine;
+      if (input.value.length > max) {
+        input.value = input.value.slice(0, max);
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendInput();
+      }
+    });
+
+    function enableInput(rows = 1) {
+      setChatRows(rows);
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.placeholder = 'Type to interact…';
+      input.focus();
+    }
+
+    function disableInput() {
+      setChatRows(1);
+      input.disabled = true;
+      sendBtn.disabled = true;
+      input.placeholder = 'Load a prompt to begin…';
+      input.value = '';
+    }
+
+    function sendInput() {
+      if (input.disabled) return;
+      const text = input.value.trim();
+      if (!text) return;
+      appendUser(text);
+      input.value = '';
+
+      if (currentPromptKey === 'goose') {
+        const lower = text.toLowerCase();
+        if (lower.startsWith('flag ')) {
+          flagSound();
+          appendLLM('Flag placed.');
+        } else if (lower.startsWith('reveal ')) {
+          if (Math.random() < 0.2) {
+            honkSound();
+            appendLLM('You cracked an egg.');
+          } else {
+            appendLLM('Safe.');
+          }
+        } else {
+          appendLLM('...');
+        }
+      } else {
+        appendLLM('...');
+      }
+    }
+
+    function resetSession() {
+      terminal.innerHTML = '';
+      currentPromptKey = null;
+      saveAsRow.style.display = 'none';
+      disableInput();
+      closeTopMenus();
+    }
+
+    function openLoadModal() {
+      closeTopMenus();
+      document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
+      selectedPrompt = null;
+      openModal('loadModal');
+    }
+
+    function selectPrompt(key, rowEl) {
+      selectedPrompt = key;
+      document.querySelectorAll('.file-row').forEach(row => row.classList.remove('selected'));
+      rowEl.classList.add('selected');
+    }
+
+    function setProgress(fillEl, percent) {
+      fillEl.style.width = `${percent}%`;
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runLoadingModal(totalMs = 2500) {
+      const fill = document.getElementById('loadingProgressFill');
+      const copy = document.getElementById('loadingCopy');
+      setProgress(fill, 0);
+      copy.textContent = 'Loading…';
+      openModal('loadingModal');
+
+      const start = performance.now();
+      const stutter = Math.random() < 0.3;
+      const stutterPoint = stutter ? (0.55 + Math.random() * 0.15) : null;
+      const stutterDuration = stutter ? (250 + Math.random() * 350) : 0;
+      let stutterDone = false;
+
+      while (true) {
+        const elapsed = performance.now() - start;
+        const progress = Math.min(elapsed / totalMs, 1);
+
+        if (stutter && !stutterDone && progress >= stutterPoint) {
+          stutterDone = true;
+          await wait(stutterDuration);
+        }
+
+        setProgress(fill, Math.min(progress * 98, 98));
+        if (progress >= 1) break;
+        await wait(50);
+      }
+
+      copy.textContent = 'Finalizing…';
+      await wait(250);
+      setProgress(fill, 100);
+      await wait(180);
+      closeModal('loadingModal');
+    }
+
+    async function loadSelectedPrompt() {
+      if (!selectedPrompt) return;
+      const cfg = promptConfigs[selectedPrompt];
+      closeModal('loadModal');
+      await runLoadingModal(2500);
+      currentPromptKey = selectedPrompt;
+      saveAsRow.style.display = 'flex';
+      enableInput(cfg.chatRows || 1);
+      appendLLM(`${cfg.label} loaded.`);
+    }
+
+    async function loadGooseSweeper() {
+      closeModal('gooseModal');
+      await runLoadingModal(2500);
+      currentPromptKey = 'goose';
+      saveAsRow.style.display = 'flex';
+      enableInput(promptConfigs.goose.chatRows || 1);
+      appendLLM('Goose Sweeper loaded.');
+    }
+
+    function saveCurrentPrompt() {
+      if (!currentPromptKey || !promptConfigs[currentPromptKey]) return;
+      const cfg = promptConfigs[currentPromptKey];
+      const blob = new Blob([cfg.text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = cfg.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      closeTopMenus();
+    }
+
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone({freq = 700, gain = 0.03, duration = 25, type = 'square'}) {
+      ensureAudio();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g).connect(audioCtx.destination);
+      o.start();
+      setTimeout(() => o.stop(), duration);
+    }
+
+    function eggTapSound() {
+      playTone({ freq: 700, gain: 0.03, duration: 28, type: 'square' });
+    }
+
+    function honkSound() {
+      playTone({ freq: 120, gain: 0.09, duration: 120, type: 'triangle' });
+    }
+
+    function flagSound() {
+      playTone({ freq: 340, gain: 0.045, duration: 90, type: 'sawtooth' });
+    }
+
+    document.getElementById('egg').addEventListener('click', (e) => {
+      e.stopPropagation();
+      eggTapSound();
+      eggClicks += 1;
+      if (eggClicks === 99) {
+        honkSound();
+        openModal('gooseModal');
+      }
+    });
+
+    function setFlavor(name) {
+      currentFlavor = name;
+      const f = flavorMap[name];
+      document.documentElement.style.setProperty('--bar', f.bar);
+      document.documentElement.style.setProperty('--bezel', f.bezel);
+      document.documentElement.style.setProperty('--screen', f.screen);
+      document.documentElement.style.setProperty('--bg', f.bg);
+      updateChecks();
+    }
+
+    function setPattern(name) {
+      currentPattern = name;
+      document.body.classList.remove('pattern-horizontal', 'pattern-vertical', 'pattern-diagonal', 'pattern-dots', 'pattern-chevron');
+      if (name !== 'none') document.body.classList.add(`pattern-${name}`);
+      updateChecks();
+    }
+
+    function setScreen(name) {
+      currentScreen = name;
+      const bezel = document.getElementById('bezel');
+      bezel.classList.remove('wide', 'ultra');
+      if (name === 'wide') bezel.classList.add('wide');
+      if (name === 'ultra') bezel.classList.add('ultra');
+      updateChecks();
+    }
+
+    function updateChecks() {
+      document.querySelectorAll('[data-flavor]').forEach(el => {
+        el.querySelector('.check').classList.toggle('visible', el.dataset.flavor === currentFlavor);
+      });
+      document.querySelectorAll('[data-pattern]').forEach(el => {
+        el.querySelector('.check').classList.toggle('visible', el.dataset.pattern === currentPattern);
+      });
+      document.querySelectorAll('[data-screen]').forEach(el => {
+        el.querySelector('.check').classList.toggle('visible', el.dataset.screen === currentScreen);
+      });
+    }
+
+    async function startInitialize() {
+      const title = document.getElementById('initTitle');
+      const copy = document.getElementById('initCopy');
+      const shell = document.getElementById('initProgressShell');
+      const fill = document.getElementById('initProgressFill');
+      const btn = document.getElementById('initButton');
+
+      btn.disabled = true;
+      title.textContent = 'Initializing Promptware Terminal';
+      copy.textContent = 'Loading…';
+      shell.style.display = 'block';
+      setProgress(fill, 0);
+
+      const seen = localStorage.getItem('pw_init_seen') === '1';
+      const duration = seen ? 2500 : 15000;
+
+      const start = performance.now();
+      while (true) {
+        const elapsed = performance.now() - start;
+        const progress = Math.min((elapsed / duration) * 98, 98);
+        setProgress(fill, progress);
+        if (elapsed >= duration) break;
+        await wait(50);
+      }
+
+      copy.textContent = 'Finalizing…';
+      await wait(250);
+      setProgress(fill, 100);
+      await wait(180);
+
+      localStorage.setItem('pw_init_seen', '1');
+      closeModal('initModal');
+    }
+
+    disableInput();
+    setFlavor('vanilla');
+    setPattern('none');
+    setScreen('standard');
+    updateChecks();
+    openModal('initModal');
+  </script>
+</body>
+</html>
