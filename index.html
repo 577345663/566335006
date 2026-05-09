@@ -895,12 +895,15 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
 
     function honkAndCloseGooseModal() {
       honkSound();
+      localStorage.setItem('pw_goose_unlocked', '1');
+      gooseLibraryRow.style.display = 'grid';
       closeModal('gooseModal');
     }
 
     document.getElementById('egg').addEventListener('click', (e) => {
       e.stopPropagation();
       eggTapSound();
+      if (localStorage.getItem('pw_goose_unlocked') === '1') return;
       eggClicks += 1;
       if (eggClicks === 99) {
         gooseLibraryRow.style.display = 'grid';
@@ -978,6 +981,10 @@ Small terminal minesweeper variant. Eggs are mines. Commands: reveal A1, flag B3
 
       localStorage.setItem('pw_init_seen', '1');
       closeModal('initModal');
+    }
+
+    if (localStorage.getItem('pw_goose_unlocked') === '1') {
+      gooseLibraryRow.style.display = 'grid';
     }
 
     disableInput();
